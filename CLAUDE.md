@@ -3,8 +3,8 @@
 Analysis of economic and demographic extremes in the Bay Area, built on public
 data from the U.S. Census Bureau (ACS PUMS, CBP, BDS, BPS, LEHD LODES), BEA,
 FRED, the BLS (QCEW, LAUS, OEWS), CFPB (HMDA), IRS SOI, FHFA, Zillow, the CDC
-(PLACES, USALEEP), and the State of California (CDPH vital statistics, DOF
-population).
+(PLACES, USALEEP), IPUMS, and the State of California (CDPH vital statistics,
+DOF population).
 
 This file documents how to download each data source. All download routes below
 were verified working from this repo's environment on 2026-05-31.
@@ -39,6 +39,7 @@ were verified working from this repo's environment on 2026-05-31.
 | CDPH vital    | No         | `https://data.chhs.ca.gov/api/3/action/package_show?id=<slug>` (CKAN)     |
 | Life exp.     | No         | `https://ftp.cdc.gov/pub/.../NVSS/USALEEP/CSV/<ST>_A.CSV` (tract)         |
 | CA DOF pop.   | No         | `https://dof.ca.gov/.../estimates-e1/E-1_<year>_InternetVersion.xlsx`     |
+| IPUMS         | **Yes**    | Extract API via `ipumspy` (free key from `account.ipums.org/api_keys`)    |
 
 \* The official JSON APIs (Census Data API, FRED API, Census BDS timeseries)
 require a free key, but there are key-free bulk/CSV routes that cover most
@@ -79,14 +80,16 @@ scripts/download_cdc_places.sh [STATE_ABBR]                 # county health, def
 scripts/download_cdph_vital.sh [DATASET_SLUG ...]           # CDPH deaths + births by county
 scripts/download_life_expectancy_tract.sh [ST]              # USALEEP tract life expectancy, default CA
 scripts/download_dof_population.sh                          # CA DOF E-1 city/county population
+scripts/download_ipums.sh [SAMPLE] [COLLECTION]            # needs IPUMS_API_KEY + ipumspy
 ```
 
 Each script's header comment documents its arguments and examples.
 
 > **Environment note:** No data API keys are currently set in this
 > environment's environment variables. Every source below works key-free from
-> this environment **except BEA** and the official Census/FRED JSON APIs, which
-> require you to add a key first (see below). The BLS hosts (`download.bls.gov`,
+> this environment **except BEA and IPUMS** and the official Census/FRED JSON
+> APIs, which require you to add a key first (see below). The BLS hosts
+> (`download.bls.gov`,
 > `www.bls.gov`) additionally require a descriptive `User-Agent` header — without
 > one they return HTTP 403; the scripts set one.
 
@@ -483,6 +486,38 @@ curl -O "https://dof.ca.gov/media/docs/forecasting/Demographics/estimates-e1/E-1
 
 Other tables (E-2 components of change, E-5 detail) are linked from
 https://dof.ca.gov/forecasting/demographics/estimates/
+
+---
+
+## IPUMS (harmonized census/survey microdata)
+
+**Requires a free API key** — there is no key-free route. IPUMS provides
+harmonized microdata across years/collections (USA, CPS, International, ATUS …)
+plus NHGIS tract/block-group aggregates. Its edge over the bulk ACS PUMS route
+is consistent variable coding across years and the NHGIS geographies.
+
+1. Register (one account spans collections): https://usa.ipums.org/
+2. Generate a key: https://account.ipums.org/api_keys
+3. `export IPUMS_API_KEY=<your-key>`
+4. Install the official client: `pip install ipumspy`
+
+IPUMS is a **job-based extract API**, not a single-URL download: you define an
+extract (collection + samples + variables), submit it, wait for the server to
+build it, then download the gzipped fixed-width data + DDI (`.xml`) codebook.
+`scripts/download_ipums.sh` wraps this with `ipumspy`:
+
+```bash
+export IPUMS_API_KEY=<your-key>
+scripts/download_ipums.sh                       # IPUMS USA, ACS 2022 1-year, default vars
+scripts/download_ipums.sh us2022b usa           # 5-year sample
+IPUMS_VARS="AGE SEX STATEFIP PUMA HHINCOME INCTOT" scripts/download_ipums.sh
+```
+
+Extracts cover the whole sample (all U.S.); filter to California
+(`STATEFIP == 6`) / the Bay Area PUMAs afterward. Read with `ipumspy.readers`
+(`read_ipums_ddi` + `read_microdata`). Because microdata overlaps the keyless
+ACS PUMS bulk route, reach for IPUMS mainly for multi-year harmonized series or
+NHGIS small-area tables.
 
 ---
 
