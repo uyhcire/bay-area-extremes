@@ -15,10 +15,17 @@ set -uo pipefail
 
 _gcs_b64url() { openssl base64 -e -A | tr '+/' '-_' | tr -d '='; }
 
+# Remove the decoded service-account file (it holds the private key) on exit.
+_gcs_cleanup() { [[ -n "${_GCS_SA_FILE:-}" ]] && rm -f "$_GCS_SA_FILE"; }
+
 _gcs_sa_file() {
   # Writes the decoded SA JSON to a temp file (once) and echoes its path.
+  # The file contains the service-account private key, so lock it down to the
+  # owner and make sure it is shredded when the sourcing shell exits.
   if [[ -z "${_GCS_SA_FILE:-}" ]]; then
     _GCS_SA_FILE="$(mktemp)"
+    chmod 600 "$_GCS_SA_FILE"
+    trap _gcs_cleanup EXIT
     echo "${GCP_PROJECT_SERVICE_ACCOUNT_JSON_BASE64:?env var not set}" | base64 -d > "$_GCS_SA_FILE"
   fi
   echo "$_GCS_SA_FILE"
