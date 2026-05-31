@@ -95,6 +95,61 @@ Each script's header comment documents its arguments and examples.
 
 ---
 
+## Cloud Storage mirror (Google Cloud Storage)
+
+The full raw cache is mirrored to a **public** GCS bucket so the data can be
+pulled without re-running every downloader:
+
+```
+gs://bay-area-extremes-data-manifest-498019      (project manifest-498019, US multi-region)
+```
+
+Object names preserve the `data/raw/` layout, so any file is reachable
+anonymously over HTTPS — no key, no `gsutil`:
+
+```bash
+# Public HTTPS URL pattern: https://storage.googleapis.com/<bucket>/<object>
+curl -O "https://storage.googleapis.com/bay-area-extremes-data-manifest-498019/fred/GDP.csv"
+curl -O "https://storage.googleapis.com/bay-area-extremes-data-manifest-498019/acs_pums_2022_1-year/psam_p06.csv"
+```
+
+The bucket is world-readable via an IAM binding granting `allUsers` the
+`roles/storage.objectViewer` role. It holds only public government data, and
+the contents are fully reproducible from the download scripts above.
+
+### Refreshing the mirror
+
+`gcloud`/`gsutil` are not installed in this environment (and the bundled python
+crypto stack is broken), so GCS access goes through a small helper that mints an
+OAuth token from `GCP_PROJECT_SERVICE_ACCOUNT_JSON_BASE64` by signing a JWT with
+`openssl`, then calls the GCS JSON API with `curl`:
+
+- `scripts/gcs_lib.sh` — sourceable helpers: `gcs_token`, `gcs_project`,
+  `gcs_make_bucket NAME [LOCATION]`, `gcs_upload BUCKET LOCAL_PATH OBJECT_NAME`.
+- `scripts/upload_to_gcs.sh [BUCKET] [SRC_DIR]` — creates the bucket if needed
+  and uploads everything under `data/raw/` (skipping `_logs/` and
+  `_download_all.out`), preserving the directory layout as object paths.
+
+```bash
+scripts/download_all.sh        # populate data/raw/ (~1.9 GB)
+scripts/upload_to_gcs.sh       # mirror it to gs://bay-area-extremes-data-<project>
+```
+
+To make a freshly created bucket public, grant `allUsers` the object-viewer
+role (requires the service account's `GCP_PROJECT_SERVICE_ACCOUNT_JSON_BASE64`):
+
+```bash
+source scripts/gcs_lib.sh
+BUCKET="bay-area-extremes-data-$(gcs_project)"; TOKEN="$(gcs_token)"
+curl -s "https://storage.googleapis.com/storage/v1/b/$BUCKET/iam" \
+  -H "Authorization: Bearer $TOKEN" \
+| python3 -c 'import sys,json; p=json.load(sys.stdin); p.setdefault("bindings",[]).append({"role":"roles/storage.objectViewer","members":["allUsers"]}); print(json.dumps(p))' \
+| curl -s -X PUT "https://storage.googleapis.com/storage/v1/b/$BUCKET/iam" \
+    -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d @-
+```
+
+---
+
 ## ACS PUMS (Census Bureau Public Use Microdata Sample)
 
 Person- and household-level microdata. Two ways to get it:
