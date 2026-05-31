@@ -81,6 +81,11 @@ scripts/download_cdph_vital.sh [DATASET_SLUG ...]           # CDPH deaths + birt
 scripts/download_life_expectancy_tract.sh [ST]              # USALEEP tract life expectancy, default CA
 scripts/download_dof_population.sh                          # CA DOF E-1 city/county population
 scripts/download_ipums.sh [SAMPLE] [COLLECTION]            # needs IPUMS_API_KEY + ipumspy
+
+# Elections / geography
+scripts/download_election_returns.sh [YEAR ...]            # county presidential returns, default 2024 2020 2016
+scripts/download_csa_geography.sh                          # Census CSA delineation + CSA populations
+scripts/rank_csa_partisanship.py [--year] [--top]          # rank largest CSAs by 2-party Dem share
 ```
 
 Each script's header comment documents its arguments and examples.
@@ -580,6 +585,44 @@ series or NHGIS small-area tables.
 > live `IPUMS_API_KEY` — the extract submitted, built server-side, and
 > downloaded (`usa_00001.dat.gz` ~76 MB + DDI), parsing to 3,373,378 person
 > records nationally (391,171 in California) across the 15 default variables.
+
+---
+
+## County presidential returns + CSA geography
+
+No key. Used to place the Bay Area's politics in context — e.g. ranking the
+largest Combined Statistical Areas (CSAs) by partisan lean. Three pieces:
+
+- **County presidential returns** — one row per county (`votes_dem`,
+  `votes_gop`, `total_votes`). There is no single official `.gov` CSV of
+  county-level results, so this uses the widely-cited
+  `tonmcg/US_County_Level_Election_Results_08-24` compilation of AP /
+  state-certified returns.
+- **CSA delineation** (`list1_2023.xlsx`) — official Census county → CBSA → CSA
+  crosswalk.
+- **CSA population** (`csa-est2023-alldata.csv`) — official Census PEP estimates,
+  used to pick the largest CSAs (`LSAD == "Combined Statistical Area"`).
+
+```bash
+scripts/download_csa_geography.sh                 # crosswalk + CSA populations
+scripts/download_election_returns.sh 2024         # county returns (default: 2024 2020 2016)
+scripts/rank_csa_partisanship.py --year 2024 --top 20
+```
+
+The analysis joins counties to CSAs, sums votes per CSA, and ranks by two-party
+Democratic share (`dem / (dem + gop)`). These are whole CSAs (core + exurbs), so
+they run more Republican than the central city alone.
+
+> **Verified 2026-05-31:** ran the full pipeline for the 2024 election. All
+> counties in the top-20 CSAs matched the returns file (no gaps). The
+> San Jose–San Francisco–Oakland CSA topped the list at **70.4%** two-party
+> Democratic (margin +39.4), ~10 points above #2 Seattle–Tacoma (66.0%);
+> Dallas–Fort Worth was lowest of the 20 at 44.7% (−10.4).
+>
+> **Caveat:** the 2024 returns use Connecticut's new planning-region FIPS
+> (matching the 2023 delineation), but the 2016/2020 files still use legacy CT
+> county FIPS, which will not join to the CT crosswalk — the analysis script
+> prints a coverage warning when this happens.
 
 ---
 
