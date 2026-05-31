@@ -81,6 +81,10 @@ scripts/download_cdph_vital.sh [DATASET_SLUG ...]           # CDPH deaths + birt
 scripts/download_life_expectancy_tract.sh [ST]              # USALEEP tract life expectancy, default CA
 scripts/download_dof_population.sh                          # CA DOF E-1 city/county population
 scripts/download_ipums.sh [SAMPLE] [COLLECTION]            # needs IPUMS_API_KEY + ipumspy
+
+# Analysis / roll-ups
+scripts/download_csa_crosswalk.sh                          # county->CBSA->CSA delineation + county pop
+scripts/rank_csa.py [--top N] [--out PATH]                 # roll Zillow county ZHVI/ZORI up to CSAs
 ```
 
 Each script's header comment documents its arguments and examples.
@@ -347,6 +351,32 @@ curl -O "https://files.zillowstatic.com/research/public_csvs/zori/Metro_zori_uc_
 ```
 
 Full catalog (more tiers, bedroom cuts, ZIP level): https://www.zillow.com/research/data/
+
+### Rolling Zillow up to CSAs (Combined Statistical Areas)
+
+Zillow's "Metro" files are **CBSA**-level (894 MSAs + a `United States` row),
+**not CSA**-level — there are no CSA rows to filter. To rank/aggregate by CSA
+(e.g. treating San Jose + San Francisco + Santa Rosa + Vallejo + Napa + Santa
+Cruz + Stockton as one Bay Area CSA), roll up the **county** files via a
+crosswalk. `scripts/download_csa_crosswalk.sh` fetches two keyless Census files:
+
+- OMB July-2023 delineation (`list1_2023.xlsx`) — county FIPS → CBSA → CSA.
+- County population estimates (`co-est2023-alldata.csv`) — to rank CSAs by size
+  and to weight the roll-up.
+
+`scripts/rank_csa.py` joins these to `County_zhvi.csv` / `County_zori.csv` by
+5-digit FIPS and aggregates to CSAs. ZHVI/ZORI are *typical-value indices*, so it
+takes a **population-weighted mean** across each CSA's counties — never a sum
+(swap the per-county weight in the script to reweight, e.g. by housing units).
+It writes a ranked CSV for all CSAs and prints the top N:
+
+```bash
+scripts/download_csa_crosswalk.sh
+scripts/rank_csa.py --top 20      # -> data/raw/xwalk/csa_housing_ranking.csv
+```
+
+A deck-styled writeup of the top-20 result lives in
+`reports/csa-housing-ranking/`.
 
 ---
 

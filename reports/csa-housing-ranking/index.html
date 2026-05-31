@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="googlebot" content="noindex, nofollow" />
+<title>Bay Area Extremes — The Costliest of the 20 Largest CSAs</title>
+<meta name="description" content="Among the 20 largest U.S. Combined Statistical Areas, the San Jose–San Francisco–Oakland CSA has the highest typical home value and the most extreme price-to-rent ratio. Built from Zillow ZHVI/ZORI with Claude Code." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Hanken+Grotesk:ital,wght@0,300..800;1,400..600&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --paper:#F2EAD9;--paper-2:#EADFC8;--ink:#17130F;--ink-soft:#4A4138;
+  --vermilion:#E14223;--teal:#0F5A5F;--gold:#CC8E22;
+  --line:rgba(23,19,15,.16);--line-strong:rgba(23,19,15,.4);--shadow:rgba(23,19,15,.22);
+  --display:"Fraunces",Georgia,serif;--body:"Hanken Grotesk",system-ui,sans-serif;--mono:"Space Mono",ui-monospace,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--body);background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;line-height:1.5}
+body::before{content:"";position:fixed;inset:0;z-index:9000;pointer-events:none;opacity:.5;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.45'/%3E%3C/svg%3E");}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(120% 90% at 12% 8%, rgba(204,142,34,.12), transparent 55%),radial-gradient(110% 90% at 92% 96%, rgba(15,90,95,.14), transparent 55%);}
+.wrap{width:min(1080px,92vw);margin:0 auto;padding:clamp(2rem,6vh,5rem) 0 5rem}
+.kicker{font-family:var(--mono);font-size:.8rem;letter-spacing:.28em;text-transform:uppercase;color:var(--vermilion);display:inline-flex;align-items:center;gap:.7rem;font-weight:700}
+.kicker::before{content:"";width:clamp(28px,4vw,56px);height:2px;background:var(--vermilion)}
+.kicker.teal{color:var(--teal)} .kicker.teal::before{background:var(--teal)}
+h1{font-family:var(--display);font-weight:600;line-height:.95;letter-spacing:-.02em;font-size:clamp(2.6rem,6.5vw,5.2rem);text-transform:uppercase;margin:.6rem 0}
+h1 .l2{display:block;color:var(--vermilion);font-style:italic;font-weight:430;text-transform:none}
+h2{font-family:var(--display);font-weight:560;line-height:1.04;letter-spacing:-.015em;font-size:clamp(1.7rem,3.6vw,2.9rem);margin:0 0 .8rem}
+.lead{font-size:clamp(1.05rem,1.7vw,1.4rem);line-height:1.5;color:var(--ink-soft);max-width:62ch}
+.em{color:var(--vermilion)} .em-t{color:var(--teal)} .fr-it{font-family:var(--display);font-style:italic;font-weight:480}
+.mast{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:1rem;border-bottom:2px solid var(--ink);padding-bottom:1rem}
+.mast .m{font-family:var(--mono);font-size:.74rem;letter-spacing:.22em;text-transform:uppercase}
+section{margin-top:clamp(2.5rem,6vh,4.5rem)}
+/* finding cards */
+.findings{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:1.8rem}
+@media(max-width:780px){.findings{grid-template-columns:repeat(2,1fr)}}
+.find{border:1.5px solid var(--ink);border-radius:4px;background:var(--paper-2);padding:1.2rem 1.1rem 1.1rem;box-shadow:8px 9px 0 var(--shadow);display:flex;flex-direction:column;gap:.35rem}
+.find .rank{font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);font-weight:700}
+.find .big{font-family:var(--display);font-size:clamp(2.1rem,3.4vw,2.9rem);line-height:1;font-weight:600;color:var(--vermilion)}
+.find .lab{font-size:.92rem;line-height:1.3;font-weight:600}
+.find .sub{font-family:var(--mono);font-size:.66rem;letter-spacing:.06em;color:var(--ink-soft);text-transform:uppercase;margin-top:auto;border-top:1px dashed var(--line);padding-top:.55rem}
+/* table */
+.tbl-wrap{margin-top:1.6rem;overflow-x:auto;border:2px solid var(--ink);border-radius:4px;box-shadow:12px 14px 0 var(--shadow);background:var(--paper-2)}
+table{border-collapse:collapse;width:100%;min-width:620px}
+thead th{font-family:var(--mono);font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;color:var(--teal);font-weight:700;text-align:right;padding:.95rem .8rem;border-bottom:2px solid var(--ink);white-space:nowrap}
+thead th.l{text-align:left}
+tbody td{padding:.62rem .8rem;border-bottom:1px dashed var(--line);font-size:.95rem;vertical-align:baseline}
+tbody tr:last-child td{border-bottom:0}
+td.rk{font-family:var(--mono);font-weight:700;color:var(--teal);font-size:.82rem}
+td.nm b{font-family:var(--display);font-weight:600;font-size:1.05rem;display:block;line-height:1.1}
+td.nm span{font-family:var(--mono);font-size:.64rem;letter-spacing:.08em;color:var(--ink-soft)}
+td.num{font-family:var(--mono);text-align:right;white-space:nowrap;font-size:.9rem}
+tr.bay td{background:rgba(225,66,35,.1)}
+tr.bay td.nm b{color:var(--vermilion)}
+tr.bay td.rk{color:var(--vermilion)}
+/* spec card */
+.spec{border:2px solid var(--ink);background:var(--paper-2);box-shadow:12px 14px 0 var(--ink);border-radius:4px;margin-top:1.6rem}
+.spec-h{display:flex;justify-content:space-between;align-items:center;padding:.9rem 1.4rem;border-bottom:2px solid var(--ink);font-family:var(--mono);text-transform:uppercase;letter-spacing:.16em;font-size:.72rem;font-weight:700}
+.spec-h .stamp{color:var(--vermilion);border:1.5px solid var(--vermilion);border-radius:99px;padding:.18rem .7rem;transform:rotate(-3deg)}
+.spec-row{display:grid;grid-template-columns:32% 1fr;gap:1rem;padding:.9rem 1.4rem;border-bottom:1px dashed var(--line)}
+.spec-row:last-child{border-bottom:0}
+.spec-row .k{font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);padding-top:.2rem}
+.spec-row .v{font-size:1rem;line-height:1.4} .spec-row .v b{font-family:var(--display)}
+/* terminal */
+.term{font-family:var(--mono);font-size:clamp(.72rem,1vw,.9rem);line-height:1.85;background:var(--ink);color:#EFE7D6;border-radius:10px;overflow:hidden;box-shadow:12px 14px 0 var(--shadow);border:1px solid #000;margin-top:1.6rem}
+.term-bar{display:flex;align-items:center;gap:.5rem;padding:.7rem 1rem;background:#221C16;border-bottom:1px solid #000}
+.term-bar i{width:11px;height:11px;border-radius:50%;display:block}
+.term-bar .t1{background:#E14223}.term-bar .t2{background:#CC8E22}.term-bar .t3{background:#3FA45B}
+.term-bar span{margin-left:.6rem;font-size:.7rem;letter-spacing:.12em;color:#9c917f;text-transform:uppercase}
+.term-body{padding:1.1rem 1.3rem} .term-body .row{white-space:pre-wrap;word-break:break-word}
+.term-body .p{color:var(--vermilion);font-weight:700} .term-body .you{color:#EFE7D6}
+.term-body .cmt{color:#8c8472} .term-body .ok{color:#5fc27e} .term-body .hl{color:var(--gold)}
+ul.notes{list-style:none;margin-top:1.2rem;display:flex;flex-direction:column;gap:.7rem}
+ul.notes li{display:grid;grid-template-columns:auto 1fr;gap:.9rem;align-items:baseline;font-size:.95rem;color:var(--ink-soft);line-height:1.45}
+ul.notes .n{font-family:var(--mono);font-weight:700;color:var(--teal);font-size:.78rem}
+ul.notes b{color:var(--ink)}
+.foot{margin-top:4rem;border-top:2px solid var(--ink);padding-top:1rem;font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);display:flex;justify-content:space-between;flex-wrap:wrap;gap:.6rem}
+a{color:var(--teal)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="mast">
+    <span class="m">The Bay Area Almanac · Vol. I · Est. 2026</span>
+    <span class="m">Found with Claude Code</span>
+  </div>
+
+  <header style="margin-top:2.2rem">
+    <span class="kicker">Entry № 01 — Housing cost</span>
+    <h1>The Costliest Big Metro<span class="l2">in America</span></h1>
+    <p class="lead">Among the <b>20 largest U.S. Combined Statistical Areas</b>, the
+    <span class="fr-it em">San&nbsp;Jose–San&nbsp;Francisco–Oakland</span> CSA has the
+    highest typical home value <span class="em">and</span> the most extreme
+    price-to-rent ratio in the country — despite ranking only 5th by population.</p>
+  </header>
+
+  <section>
+    <span class="kicker teal">The superlatives</span>
+    <div class="findings">
+      <div class="find">
+        <span class="rank">#1 of 20 · home value</span>
+        <span class="big">$1.11M</span>
+        <span class="lab">Highest typical home value (ZHVI)</span>
+        <span class="sub">29% above #2 Los Angeles</span>
+      </div>
+      <div class="find">
+        <span class="rank">#1 of 20 · price-to-rent</span>
+        <span class="big">30.3×</span>
+        <span class="lab">Most extreme price-to-rent ratio</span>
+        <span class="sub">Buying costs the most vs. renting</span>
+      </div>
+      <div class="find">
+        <span class="rank">#2 of 20 · rent</span>
+        <span class="big">$3,056</span>
+        <span class="lab">2nd-highest typical rent (ZORI)</span>
+        <span class="sub">Behind only New York</span>
+      </div>
+      <div class="find">
+        <span class="rank">#5 of 20 · population</span>
+        <span class="big">9.0M</span>
+        <span class="lab">Only the 5th-largest CSA</span>
+        <span class="sub">Over-indexed on cost, not size</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <span class="kicker">The field — 20 largest U.S. CSAs</span>
+    <h2>Ranked by population, priced by Zillow.</h2>
+    <p class="lead">Home value and rent are population-weighted roll-ups of the
+    counties in each CSA. The Bay Area row is <span class="em">highlighted</span>.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th class="l">Combined Statistical Area</th>
+            <th>Pop (M)</th><th>ZHVI</th><th>ZORI/mo</th><th>P/R</th><th>×&nbsp;2000</th>
+          </tr>
+        </thead>
+        <tbody>
+      <tr>
+        <td class="rk">01</td>
+        <td class="nm"><b>New York</b><span>NY·NJ·CT·PA</span></td>
+        <td class="num">21.86</td>
+        <td class="num">$743,100</td>
+        <td class="num">$3,183</td>
+        <td class="num">19.5</td>
+        <td class="num">3.33×</td>
+      </tr>
+      <tr>
+        <td class="rk">02</td>
+        <td class="nm"><b>Los Angeles</b><span>CA</span></td>
+        <td class="num">18.32</td>
+        <td class="num">$863,626</td>
+        <td class="num">$2,786</td>
+        <td class="num">25.8</td>
+        <td class="num">4.23×</td>
+      </tr>
+      <tr>
+        <td class="rk">03</td>
+        <td class="nm"><b>Washington–Baltimore</b><span>DC·MD·VA·WV·PA</span></td>
+        <td class="num">10.07</td>
+        <td class="num">$534,878</td>
+        <td class="num">$2,160</td>
+        <td class="num">20.6</td>
+        <td class="num">3.0×</td>
+      </tr>
+      <tr>
+        <td class="rk">04</td>
+        <td class="nm"><b>Chicago</b><span>IL·IN·WI</span></td>
+        <td class="num">9.79</td>
+        <td class="num">$343,787</td>
+        <td class="num">$2,125</td>
+        <td class="num">13.5</td>
+        <td class="num">2.19×</td>
+      </tr>
+      <tr class="bay">
+        <td class="rk">05</td>
+        <td class="nm"><b>San Jose–San Francisco–Oakland</b><span>CA</span></td>
+        <td class="num">9.00</td>
+        <td class="num">$1,111,399</td>
+        <td class="num">$3,056</td>
+        <td class="num">30.3</td>
+        <td class="num">3.66×</td>
+      </tr>
+      <tr>
+        <td class="rk">06</td>
+        <td class="nm"><b>Dallas–Fort Worth</b><span>TX·OK</span></td>
+        <td class="num">8.65</td>
+        <td class="num">$360,500</td>
+        <td class="num">$1,649</td>
+        <td class="num">18.2</td>
+        <td class="num">2.69×</td>
+      </tr>
+      <tr>
+        <td class="rk">07</td>
+        <td class="nm"><b>Boston–Worcester</b><span>MA·RI·NH</span></td>
+        <td class="num">8.35</td>
+        <td class="num">$660,038</td>
+        <td class="num">$2,649</td>
+        <td class="num">20.8</td>
+        <td class="num">3.37×</td>
+      </tr>
+      <tr>
+        <td class="rk">08</td>
+        <td class="nm"><b>Houston</b><span>TX</span></td>
+        <td class="num">7.71</td>
+        <td class="num">$304,530</td>
+        <td class="num">$1,634</td>
+        <td class="num">15.5</td>
+        <td class="num">2.42×</td>
+      </tr>
+      <tr>
+        <td class="rk">09</td>
+        <td class="nm"><b>Philadelphia</b><span>PA·NJ·DE·MD</span></td>
+        <td class="num">7.39</td>
+        <td class="num">$385,414</td>
+        <td class="num">$1,943</td>
+        <td class="num">16.5</td>
+        <td class="num">3.05×</td>
+      </tr>
+      <tr>
+        <td class="rk">10</td>
+        <td class="nm"><b>Atlanta</b><span>GA·AL</span></td>
+        <td class="num">7.22</td>
+        <td class="num">$381,496</td>
+        <td class="num">$1,820</td>
+        <td class="num">17.5</td>
+        <td class="num">2.55×</td>
+      </tr>
+      <tr>
+        <td class="rk">11</td>
+        <td class="nm"><b>Miami</b><span>FL</span></td>
+        <td class="num">7.01</td>
+        <td class="num">$471,976</td>
+        <td class="num">$2,661</td>
+        <td class="num">14.8</td>
+        <td class="num">3.96×</td>
+      </tr>
+      <tr>
+        <td class="rk">12</td>
+        <td class="nm"><b>Detroit</b><span>MI</span></td>
+        <td class="num">5.36</td>
+        <td class="num">$271,851</td>
+        <td class="num">$1,490</td>
+        <td class="num">15.2</td>
+        <td class="num">1.97×</td>
+      </tr>
+      <tr>
+        <td class="rk">13</td>
+        <td class="nm"><b>Phoenix</b><span>AZ</span></td>
+        <td class="num">5.12</td>
+        <td class="num">$453,093</td>
+        <td class="num">$1,747</td>
+        <td class="num">21.6</td>
+        <td class="num">3.11×</td>
+      </tr>
+      <tr>
+        <td class="rk">14</td>
+        <td class="nm"><b>Seattle–Tacoma</b><span>WA</span></td>
+        <td class="num">4.99</td>
+        <td class="num">$738,818</td>
+        <td class="num">$2,127</td>
+        <td class="num">28.9</td>
+        <td class="num">3.33×</td>
+      </tr>
+      <tr>
+        <td class="rk">15</td>
+        <td class="nm"><b>Orlando</b><span>FL</span></td>
+        <td class="num">4.51</td>
+        <td class="num">$364,241</td>
+        <td class="num">$1,906</td>
+        <td class="num">15.9</td>
+        <td class="num">3.21×</td>
+      </tr>
+      <tr>
+        <td class="rk">16</td>
+        <td class="nm"><b>Minneapolis–St. Paul</b><span>MN·WI</span></td>
+        <td class="num">4.10</td>
+        <td class="num">$384,782</td>
+        <td class="num">$1,666</td>
+        <td class="num">19.2</td>
+        <td class="num">2.54×</td>
+      </tr>
+      <tr>
+        <td class="rk">17</td>
+        <td class="nm"><b>Cleveland–Akron</b><span>OH</span></td>
+        <td class="num">3.73</td>
+        <td class="num">$236,699</td>
+        <td class="num">$1,357</td>
+        <td class="num">14.5</td>
+        <td class="num">2.16×</td>
+      </tr>
+      <tr>
+        <td class="rk">18</td>
+        <td class="nm"><b>Denver</b><span>CO</span></td>
+        <td class="num">3.69</td>
+        <td class="num">$578,612</td>
+        <td class="num">$1,917</td>
+        <td class="num">25.1</td>
+        <td class="num">2.95×</td>
+      </tr>
+      <tr>
+        <td class="rk">19</td>
+        <td class="nm"><b>Charlotte</b><span>NC·SC</span></td>
+        <td class="num">3.39</td>
+        <td class="num">$370,105</td>
+        <td class="num">$1,684</td>
+        <td class="num">18.3</td>
+        <td class="num">2.56×</td>
+      </tr>
+      <tr>
+        <td class="rk">20</td>
+        <td class="nm"><b>Portland</b><span>OR·WA</span></td>
+        <td class="num">3.29</td>
+        <td class="num">$527,797</td>
+        <td class="num">$1,770</td>
+        <td class="num">24.8</td>
+        <td class="num">3.0×</td>
+      </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <span class="kicker teal">How it was found</span>
+    <h2>Zillow has no CSA rows — so we rolled them up.</h2>
+    <p class="lead">Zillow publishes ZHVI/ZORI at the CBSA (metro) level only. The
+    CSA view is a join: Census county→CBSA→CSA crosswalk, county population to rank
+    and weight, and Zillow's county files for the levels.</p>
+    <div class="term">
+      <div class="term-bar"><i class="t1"></i><i class="t2"></i><i class="t3"></i><span>claude code — bay-area-extremes</span></div>
+      <div class="term-body">
+        <div class="row"><span class="p">›</span> <span class="you">rank the 20 largest CSAs by Zillow home value &amp; rent</span></div>
+        <div class="row cmt">· crosswalk: OMB Jul-2023 delineation (county → CBSA → CSA)</div>
+        <div class="row cmt">· weight + size: Census county pop, 2023 vintage</div>
+        <div class="row cmt">· levels: Zillow County_zhvi / County_zori (Apr 2026)</div>
+        <div class="row cmt">· pop-weighted mean over each CSA's counties · 184 CSAs</div>
+        <div class="row ok">✓ San Jose–SF–Oakland → #1 value · #1 price-to-rent · #2 rent</div>
+      </div>
+    </div>
+    <div class="spec">
+      <div class="spec-h"><span>Reproduce it</span><span class="stamp">Public data</span></div>
+      <div class="spec-row"><div class="k">Sources</div><div class="v">Zillow ZHVI &amp; ZORI · Census/OMB delineation · Census county population estimates</div></div>
+      <div class="spec-row"><div class="k">As of</div><div class="v"><b>April 2026</b> ZHVI/ZORI · 2023 population · July 2023 CSA delineation</div></div>
+      <div class="spec-row"><div class="k">Method</div><div class="v">Counties joined by 5-digit FIPS; ZHVI/ZORI are typical-value indices, so aggregated as a <b>population-weighted mean</b> — never summed</div></div>
+      <div class="spec-row"><div class="k">Commands</div><div class="v"><code>scripts/download_zillow.sh</code> · <code>scripts/download_csa_crosswalk.sh</code> · <code>scripts/rank_csa.py</code> → <a href="csa_housing_ranking.csv">csa_housing_ranking.csv</a></div></div>
+    </div>
+    <ul class="notes">
+      <li><span class="n">!</span><span><b>Indices, not sums.</b> ZHVI/ZORI are "typical-value" indices; the CSA figure is a weighted average of its counties, weighted by population.</span></li>
+      <li><span class="n">!</span><span><b>ZORI coverage is thinner</b> than ZHVI (county-level rents exist for ~1,330 of 3,072 counties), so each CSA's rent leans toward its more urban counties.</span></li>
+      <li><span class="n">!</span><span><b>Not the all-time appreciation leader.</b> Since 2000 the Bay Area is up 3.66× — 3rd among these 20, behind Los Angeles (4.23×) and Miami (3.96×).</span></li>
+      <li><span class="n">!</span><span><b>Refinement.</b> Weighting ZHVI by owner-occupied units and ZORI by renter units would be marginally more correct; swap the weight in <code>rank_csa.py</code>.</span></li>
+    </ul>
+  </section>
+
+  <div class="foot">
+    <span>Bay Area Extremes · Entry № 01</span>
+    <span>Built with Claude Code · Public data only</span>
+  </div>
+
+</div>
+</body>
+</html>
