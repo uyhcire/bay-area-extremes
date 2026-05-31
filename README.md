@@ -48,4 +48,5 @@ it reaches `READY`.
 The repo is a collective "journal": find a dimension where a Bay Area metro
 ranks #1 or last among the 20 largest U.S. metros, confirm the number with
 Claude Code against the public data, then **fork and open a pull request** to
-add the entry.
+add the entry. Entries live in [`findings/`](findings/) — see the
+[index](findings/README.md) for the journal so far.
