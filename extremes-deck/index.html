@@ -150,6 +150,12 @@ h2{font-family:var(--display);font-weight:560;line-height:1.0;letter-spacing:-.0
 .card p{font-size:.86rem;line-height:1.45;color:var(--ink-soft)}
 .card .no{position:absolute;right:.7rem;bottom:.4rem;font-family:var(--display);font-size:2.6rem;color:var(--line);font-weight:300}
 
+/* source groups (the rest of the pantry) */
+.src-groups{display:grid;grid-template-columns:repeat(2,1fr);gap:.9rem 2.2rem;margin-top:1.5rem}
+@media (max-width:820px){.src-groups{grid-template-columns:1fr}}
+.src-group .gl{font-family:var(--mono);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);font-weight:700;display:block;margin-bottom:.55rem}
+.src-group .chips{margin-top:0;max-width:none}
+
 /* trivia entries */
 .entries{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;margin-top:1.6rem}
 @media (max-width:820px){.entries{grid-template-columns:1fr}}
@@ -348,14 +354,21 @@ h2{font-family:var(--display);font-weight:560;line-height:1.0;letter-spacing:-.0
     <section class="slide">
       <div class="slide-inner">
         <span class="kicker" data-animate style="--d:40">07 — The pantry</span>
-        <h2 data-animate style="--d:140;margin-top:1rem">Four public datasets. <span class="em">Zero</span> excuses.</h2>
+        <h2 data-animate style="--d:140;margin-top:1rem">Nineteen public datasets. <span class="em">Zero</span> excuses.</h2>
+        <p class="lead" data-animate style="--d:220;margin-top:.9rem;max-width:60ch">Four staples do the heavy lifting — and fifteen more cover housing, jobs, migration, and health.</p>
         <div class="cards">
-          <div class="card" data-animate style="--d:280"><span class="tag">Census</span><h3>ACS PUMS</h3><p>Person & household microdata — income, commute, rent, age, occupation.</p><span class="no">01</span></div>
+          <div class="card" data-animate style="--d:300"><span class="tag">Census</span><h3>ACS PUMS</h3><p>Person & household microdata — income, commute, rent, age, occupation.</p><span class="no">01</span></div>
           <div class="card" data-animate style="--d:360"><span class="tag">St. Louis Fed</span><h3>FRED</h3><p>Macro time series by metro: jobs, prices, housing, rates.</p><span class="no">02</span></div>
-          <div class="card" data-animate style="--d:440"><span class="tag">Bureau of Econ.</span><h3>BEA</h3><p>GDP and personal income by metro and county.</p><span class="no">03</span></div>
-          <div class="card" data-animate style="--d:520"><span class="tag">BLS</span><h3>QCEW</h3><p>Establishments, employment & wages by county and industry.</p><span class="no">04</span></div>
+          <div class="card" data-animate style="--d:420"><span class="tag">Bureau of Econ.</span><h3>BEA</h3><p>GDP and personal income by metro and county.</p><span class="no">03</span></div>
+          <div class="card" data-animate style="--d:480"><span class="tag">BLS</span><h3>QCEW</h3><p>Establishments, employment & wages by county and industry.</p><span class="no">04</span></div>
         </div>
-        <p class="lead" data-animate style="--d:620;margin-top:1.8rem;max-width:62ch">All free — and already <span class="em-t">mirrored to public storage</span>, so Claude Code reads them straight over HTTPS. No downloads, no API keys. The routes are documented in this repo's <span class="fr-it">CLAUDE.md</span>.</p>
+        <div class="src-groups">
+          <div class="src-group" data-animate style="--d:560"><span class="gl">Housing & prices</span><div class="chips"><span class="chip">Zillow ZHVI / ZORI</span><span class="chip">FHFA HPI</span><span class="chip">Census BPS</span><span class="chip">HMDA</span></div></div>
+          <div class="src-group" data-animate style="--d:620"><span class="gl">Jobs & business</span><div class="chips"><span class="chip">BLS LAUS</span><span class="chip">BLS OEWS</span><span class="chip">Census CBP</span><span class="chip">Census BDS</span><span class="chip">LEHD LODES</span></div></div>
+          <div class="src-group" data-animate style="--d:680"><span class="gl">Income & migration</span><div class="chips"><span class="chip">IRS SOI</span><span class="chip">IPUMS</span></div></div>
+          <div class="src-group" data-animate style="--d:740"><span class="gl">Health & population</span><div class="chips"><span class="chip">CDC PLACES</span><span class="chip">CDPH vital stats</span><span class="chip">USALEEP life exp.</span><span class="chip">CA DOF population</span></div></div>
+        </div>
+        <p class="disclaimer" data-animate style="--d:820"><b>※</b><span>All free, and already <span class="em-t">mirrored to public storage</span> — Claude Code reads them straight over HTTPS, no downloads or API keys. Every route is documented in this repo's <span class="fr-it">CLAUDE.md</span>.</span></p>
       </div>
     </section>
 
