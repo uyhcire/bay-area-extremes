@@ -583,6 +583,69 @@ series or NHGIS small-area tables.
 
 ---
 
+## Deploying the pitch deck (Vercel)
+
+The recruiting deck is a self-contained static site in `extremes-deck/`
+(`index.html`, `robots.txt`, `vercel.json`), deployed on Vercel at
+https://bay-area-extremes.vercel.app (alias
+`bay-area-extremes-deck.vercel.app`). The Vercel project is **not** connected to
+GitHub, so pushing/merging does **not** redeploy — you upload the folder
+yourself.
+
+- Team (slug): `eric-yus-projects-7f811cc3`
+- Project name: `bay-area-extremes-deck`
+- Project id: `prj_685UPGr3pAiIKbGIMu7wGs79KAqJ`
+
+### A. Vercel CLI (simplest, if installed)
+
+```bash
+cd extremes-deck
+vercel deploy --prod      # uploads this folder and promotes it to production
+```
+
+### B. REST API with a token (no CLI) — **verified working route**
+
+Needs a token in `VERCEL_ACCESS_TOKEN`. Two steps: SHA-1 + upload each file,
+then create a production deployment that references the uploaded SHAs. Vercel
+re-points the `bay-area-extremes(.|-deck.)vercel.app` aliases automatically once
+the deployment reaches `READY`.
+
+```bash
+cd extremes-deck
+TEAM="eric-yus-projects-7f811cc3"
+PROJECT="prj_685UPGr3pAiIKbGIMu7wGs79KAqJ"
+AUTH="Authorization: Bearer $VERCEL_ACCESS_TOKEN"
+
+# 1. Upload each file; collect a {file,sha,size} manifest.
+FILES_JSON=""
+for f in index.html robots.txt vercel.json; do
+  SHA=$(sha1sum "$f" | awk '{print $1}'); SIZE=$(wc -c < "$f")
+  curl -s -X POST "https://api.vercel.com/v2/files?teamId=$TEAM" \
+    -H "$AUTH" -H "Content-Type: application/octet-stream" \
+    -H "x-vercel-digest: $SHA" --data-binary "@$f" >/dev/null
+  FILES_JSON="$FILES_JSON{\"file\":\"$f\",\"sha\":\"$SHA\",\"size\":$SIZE},"
+done
+FILES_JSON="[${FILES_JSON%,}]"
+
+# 2. Create a production deployment referencing those SHAs.
+curl -s -X POST "https://api.vercel.com/v13/deployments?teamId=$TEAM" \
+  -H "$AUTH" -H "Content-Type: application/json" \
+  -d "{\"name\":\"bay-area-extremes-deck\",\"project\":\"$PROJECT\",\"target\":\"production\",\"files\":$FILES_JSON}"
+
+# 3. (optional) Poll until READY: GET v13/deployments/<id>?teamId=$TEAM → .readyState
+```
+
+The deck is served `noindex, nofollow` (the `<meta robots>` tag, `robots.txt`,
+and the `X-Robots-Tag` header in `vercel.json`), so it won't appear in search
+results — share the direct link.
+
+> **Verified 2026-05-31:** redeployed the updated deck end-to-end via route B
+> with a live `VERCEL_ACCESS_TOKEN` — all three files uploaded (HTTP 200), the
+> deployment reached `READY`, and both `vercel.app` aliases served the new
+> `index.html` (HTTP 200, `X-Robots-Tag` intact).
+
+---
+
 ## Conventions
 
 - Put downloaded raw files under `data/raw/` (git-ignored — these are large and
