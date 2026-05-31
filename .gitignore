@@ -1,0 +1,10 @@
+# Raw, reproducible data downloads — large and rebuildable from scripts/.
+data/raw/
+
+# Common transient/large artifacts
+*.zip
+*.csv.gz
+
+# OS / editor cruft
+.DS_Store
+*.swp

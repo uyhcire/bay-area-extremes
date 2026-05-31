@@ -18,6 +18,21 @@ were verified working from this repo's environment on 2026-05-31.
 \* The official JSON APIs (Census Data API, FRED API) require a free key, but
 there are key-free bulk/CSV routes that cover most needs. See each section.
 
+### Download scripts
+
+Ready-to-run wrappers live in `scripts/`. They write to `data/raw/` (git-ignored),
+retry on network errors, and default to Bay Area / California parameters. The
+keyless ones run as-is; `download_bea.sh` needs `BEA_API_KEY` exported first.
+
+```bash
+scripts/download_acs_pums.sh [YEAR] [SPAN] [STATE] [REC]    # default: 2022 1-Year ca p
+scripts/download_fred.sh SERIES_ID [SERIES_ID ...]          # e.g. GDP UNRATE SFXRSA
+scripts/download_qcew.sh [YEAR] [QTR] [AREA_FIPS ...]       # default: 9 Bay Area counties, annual
+scripts/download_bea.sh [TABLE] [LINECODE] [GEOFIPS] [YEAR] # needs BEA_API_KEY
+```
+
+Each script's header comment documents its arguments and examples.
+
 > **Environment note:** No data API keys are currently set in this
 > environment's environment variables. The key-free routes (ACS PUMS bulk CSV,
 > FRED `fredgraph.csv`, QCEW open API) work as-is. BEA and the official
