@@ -606,12 +606,13 @@ largest Combined Statistical Areas (CSAs) by partisan lean. Three pieces:
 ```bash
 scripts/download_csa_geography.sh                 # crosswalk + CSA populations
 scripts/download_election_returns.sh 2024         # county returns (default: 2024 2020 2016)
-scripts/rank_csa_partisanship.py --year 2024 --top 20
+scripts/rank_csa_partisanship.py --year 2024 --top 20 --out   # prints + writes findings/ CSV
 ```
 
 The analysis joins counties to CSAs, sums votes per CSA, and ranks by two-party
 Democratic share (`dem / (dem + gop)`). These are whole CSAs (core + exurbs), so
-they run more Republican than the central city alone.
+they run more Republican than the central city alone. The committed write-up and
+ranked table live in `findings/csa_partisanship_2024.{md,csv}`.
 
 > **Verified 2026-05-31:** ran the full pipeline for the 2024 election. All
 > counties in the top-20 CSAs matched the returns file (no gaps). The
@@ -696,3 +697,6 @@ results — share the direct link.
   control; commit the download scripts instead.
 - Reference each dataset by source + year (e.g. `acs_pums_2022_1yr`,
   `qcew_2022_annual`) so the provenance is clear.
+- Put analysis outputs (write-ups + small derived tables) under `findings/`.
+  Unlike `data/raw/`, this directory **is** committed — it holds the conclusions,
+  not the bulk inputs, so they're viewable in the repo without re-running.

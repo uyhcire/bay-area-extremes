@@ -10,7 +10,10 @@ Inputs (download first):
     scripts/download_election_returns.sh     # county presidential returns
 
 Usage:
-    scripts/rank_csa_partisanship.py [--year 2024] [--top 20] [--out PATH]
+    scripts/rank_csa_partisanship.py [--year 2024] [--top 20] [--out [PATH]]
+
+Prints the ranked table; pass --out to also save it as CSV (a bare --out writes
+findings/csa_partisanship_<year>.csv). A committed write-up lives in findings/.
 
 Two-party Dem share = votes_dem / (votes_dem + votes_gop). Margin = (dem - gop)
 / total_votes. These are whole CSAs (urban core + exurbs), so they run more
@@ -46,8 +49,15 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--year", default="2024", help="presidential election year (default: 2024)")
     ap.add_argument("--top", type=int, default=20, help="number of largest CSAs to rank (default: 20)")
-    ap.add_argument("--out", help="optional path to write the ranked table as CSV")
+    ap.add_argument(
+        "--out",
+        nargs="?",
+        const="",
+        help="write the ranked table as CSV; bare --out defaults to findings/csa_partisanship_<year>.csv",
+    )
     args = ap.parse_args()
+    if args.out == "":
+        args.out = f"findings/csa_partisanship_{args.year}.csv"
 
     returns_file = RETURNS / f"county_presidential_{args.year}.csv"
     if not returns_file.exists():
