@@ -570,9 +570,16 @@ IPUMS_VARS="AGE SEX STATEFIP PUMA HHINCOME INCTOT" scripts/download_ipums.sh
 
 Extracts cover the whole sample (all U.S.); filter to California
 (`STATEFIP == 6`) / the Bay Area PUMAs afterward. Read with `ipumspy.readers`
-(`read_ipums_ddi` + `read_microdata`). Because microdata overlaps the keyless
-ACS PUMS bulk route, reach for IPUMS mainly for multi-year harmonized series or
-NHGIS small-area tables.
+(`read_ipums_ddi` + `read_microdata`), or use the convenience loader
+`scripts/load_ipums.py` (reads the `.dat.gz` + `.xml` pair into a pandas
+DataFrame, with `--ca` to filter to California). Because microdata overlaps the
+keyless ACS PUMS bulk route, reach for IPUMS mainly for multi-year harmonized
+series or NHGIS small-area tables.
+
+> **Verified 2026-05-31:** ran `scripts/download_ipums.sh` end-to-end with a
+> live `IPUMS_API_KEY` — the extract submitted, built server-side, and
+> downloaded (`usa_00001.dat.gz` ~76 MB + DDI), parsing to 3,373,378 person
+> records nationally (391,171 in California) across the 15 default variables.
 
 ---
 
