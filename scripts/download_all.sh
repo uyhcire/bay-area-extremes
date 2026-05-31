@@ -37,6 +37,7 @@ STEPS=(
   "download_cdph_vital.sh"
   "download_life_expectancy_tract.sh"
   "download_dof_population.sh"
+  "download_ipums.sh"
 )
 
 if [[ "${1:-}" == "--list" ]]; then
@@ -55,9 +56,14 @@ for step in "${STEPS[@]}"; do
   name="${step%% *}"; name="${name%.sh}"          # script basename without .sh
   log="${LOGDIR}/${name}.log"
 
-  # BEA needs a key — skip cleanly rather than fail when it is absent.
+  # BEA / IPUMS need keys — skip cleanly rather than fail when absent.
   if [[ "$step" == download_bea.sh* && -z "${BEA_API_KEY:-}" ]]; then
     echo "SKIP  ${name}  (BEA_API_KEY not set)"
+    RESULTS+=("SKIP  ${name}")
+    continue
+  fi
+  if [[ "$step" == download_ipums.sh* && -z "${IPUMS_API_KEY:-}" ]]; then
+    echo "SKIP  ${name}  (IPUMS_API_KEY not set)"
     RESULTS+=("SKIP  ${name}")
     continue
   fi
