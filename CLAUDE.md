@@ -54,6 +54,10 @@ retry on network errors, and default to Bay Area / California parameters. The
 keyless ones run as-is; `download_bea.sh` needs `BEA_API_KEY` exported first.
 
 ```bash
+# Run everything with default Bay Area / CA parameters (~1.9 GB into data/raw/).
+# Continues past failures, SKIPs BEA when BEA_API_KEY is unset, prints a summary.
+scripts/download_all.sh           # or: scripts/download_all.sh --list
+
 # Core economic / macro
 scripts/download_acs_pums.sh [YEAR] [SPAN] [STATE] [REC]    # default: 2022 1-Year ca p
 scripts/download_fred.sh SERIES_ID [SERIES_ID ...]          # e.g. GDP UNRATE SFXRSA
