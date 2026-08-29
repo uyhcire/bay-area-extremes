@@ -8,3 +8,6 @@ data/raw/
 # OS / editor cruft
 .DS_Store
 *.swp
+
+# Replication intermediates (rebuildable from scripts/replication/)
+data/work/replication/sample.parquet
