@@ -158,6 +158,56 @@ through 2019 and extrapolated overpredicts the 2026 premium by 8 log points
 (0.648 predicted vs 0.567 actual; paper: ~7 log points, 0.70 vs 0.63 on the
 1914-anchored model).
 
+## Is the decline real? Validity checks
+
+Beyond reproducing the paper's numbers, we tested whether the measured
+2022–2026 decline could be a CPS artifact rather than a real change in
+relative wages (`scripts/replication/09_robustness.py`). **All four threats
+cut against the artifact story; three of them imply the true decline is
+larger than measured.**
+
+| Threat | Test | Result |
+| --- | --- | --- |
+| Sampling noise | Bootstrap (400 reps) of the 2022–26 change | −0.050, SE 0.0067, **t = −7.4**, 95% CI [−0.064, −0.036], 0/400 draws ≥ 0 |
+| Changed topcoding | Median premium (immune below 50% incidence) | −0.056 vs mean −0.051 — **unchanged** |
+| Changed earnings imputation | Allocation rates; premium excluding imputed | Rates *fell* 37.5%→32.6%; excluding imputed gives **−0.066** (larger) |
+| Partial 2026 (Jan–Jul) | Jan–Jul vs full-year premium, 2010–2025 | Jan–Jul runs **+0.002 higher** → 2026 if anything overstated; Jan–Jul comparison gives −0.061 |
+
+Two further patterns are inconsistent with a measurement artifact: the decline
+appears in **all nine** demographic subgroups tested (men −0.076, women
+−0.022, three age bands, four race/ethnicity groups), and it is **monotone
+across four consecutive years** (0.626 → 0.611 → 0.600 → 0.587 → 0.576)
+rather than a single jump. Composition on observables is also ruled out: the
+composition-adjusted change (−0.054) tracks the raw change (−0.051).
+
+> **A robustness check that looks decisive and is wrong.** Dropping topcoded
+> observations flips the sign to **+0.038**. This is a biased estimator, not
+> counter-evidence: college topcode incidence fell from 14.0% (2022) to 7.1%
+> (2026), so the filter deletes twice as much of the college right tail in
+> 2022 as in 2026, mechanically manufacturing a rise. Use the median premium
+> (topcode-immune) instead.
+
+Note also on imputation: CPS hot-deck allocation causes match bias that
+*attenuates* the premium, so the post-2022 fall in allocation rates biases the
+measured premium **upward** — it cannot generate a spurious decline.
+
+### What the decline is made of
+
+Deflating by CPI-U, the gap closes from both sides: college real hourly wages
+**−2.8%**, non-college **+2.3%** over 2022–2026. The college side accounts for
+only **56%** of the movement. Nearly half of the "college premium decline" is
+therefore low-wage workers gaining ground — the low-wage compression channel
+of Autor, Dube & McGrew (2023), which the paper lists in its residual and
+which is unrelated to AI displacing college graduates. This makes the ~25%
+AI-exposure share read more like a ceiling than a point estimate.
+
+**Verdict:** high confidence that the college/non-college wage gap genuinely
+narrowed; moderate confidence in the exact magnitude (2026 rests on seven
+months, and CPS sample sizes are shrinking — ~61k observations for seven
+months of 2026 vs ~120k for all of 2022); materially lower confidence that
+generative AI is the driver, which rests on a correlation between occupational
+exposure and wage growth rather than identification.
+
 ## Known deviations from the paper's procedure
 
 1. **Exposure variant and crosswalk.** Best-match calibration (GPT-4 beta) and
@@ -185,6 +235,7 @@ python3 scripts/replication/05_event_study.py [measure] [baseline_year]
 python3 scripts/replication/06_variance.py
 python3 scripts/replication/07_ces.py
 python3 scripts/replication/08_figures.py
+python3 scripts/replication/09_robustness.py
 ```
 
 Outputs: `data/work/replication/*.csv` (series, event-study estimates,

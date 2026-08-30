@@ -11,3 +11,4 @@ data/raw/
 
 # Replication intermediates (rebuildable from scripts/replication/)
 data/work/replication/sample.parquet
+data/work/replication/sample_flags.parquet
