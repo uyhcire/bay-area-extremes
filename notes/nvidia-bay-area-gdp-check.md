@@ -130,3 +130,18 @@ change the total.
   sq ft owned/leased. No disclosure of US or Bay Area headcount.
 - Nominal/real mixing: Bay Area real GDP growth was 4.4% in 2024 vs 6.5%
   nominal; the pp understatement figures above are nominal.
+
+## 7. Real-terms follow-up: Bay Area vs LA vs Florida
+
+`notes/figures/real_gdp_race.tex` (pgfplots; compile with `pdflatex`) plots
+real GDP in chained 2017 dollars from BEA CAGDP1/SAGDP1, with projections at
+2019–24 real CAGRs (Bay Area 3.3%, LA 1.4%; Florida at its 2025 pace, 3.0%)
+and a band adding 50–70% of Nvidia's US income deflated by the US GDP price
+index. Data in `real_gdp_race_data.csv`.
+
+In real terms the picture differs from nominal: the Bay Area's 2024 gap to the
+official 5-county LA CSA is 10% ($1,216B vs $1,351B), not 20%, because the Bay
+Area's industry mix carries lower implied prices. On the official trend the Bay
+Area still trails LA ($1.34T vs $1.41T) and Florida ($1.48T) in 2027. With the
+Nvidia correction ($1.46–1.56T) it passes the LA CSA and its upper half passes
+Florida. Chained-dollar county sums are approximate.

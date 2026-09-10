@@ -1,0 +1,96 @@
+% Real GDP: Bay Area vs Los Angeles vs Florida, 2010-2027
+% Compile: pdflatex real_gdp_race.tex   (needs pgfplots >= 1.18; data in real_gdp_race_data.csv)
+\documentclass[10pt]{article}
+\usepackage[paperwidth=20cm,paperheight=13.4cm,margin=5mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[scaled=0.95]{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{patterns}
+\pagestyle{empty}
+
+% Print-safe palette: distinct in colour and in grey-scale luminance.
+\definecolor{bay}{HTML}{1C5CAB}   % dark blue
+\definecolor{la}{HTML}{D9541E}    % orange
+\definecolor{fl}{HTML}{0E7F58}    % green
+\definecolor{ghost}{HTML}{8A9198} % grey (memo's 3-county LA)
+\definecolor{ink}{HTML}{111111}
+\definecolor{ink2}{HTML}{555555}
+
+\pgfplotstableread[col sep=comma]{real_gdp_race_data.csv}\data
+
+\begin{document}
+\noindent
+\begin{tikzpicture}
+  % ---- title block -------------------------------------------------------
+  \node[anchor=north west, font=\large\bfseries, text=ink] at (0,0) {Real GDP, 2010--2024 actual and 2025--2027 projected};
+  \node[anchor=north west, font=\small, text=ink2, text width=18.8cm, align=left] at (0,-0.55)
+    {Trillions of chained 2017 dollars. Solid lines are BEA estimates; dashed lines are projections at each area's
+     2019--24 real compound growth rate (Bay Area 3.3\%, Los Angeles 1.4\%); Florida continues its 2025 actual pace (3.0\%).
+     The shaded band adds 50--70\% of Nvidia's US-booked income, deflated by the US GDP price index, to the Bay Area
+     (2027 assumes Nvidia income grows 30--70\%).};
+
+  \begin{axis}[
+      at={(1.2cm,-9.35cm)}, anchor=south west,
+      width=11.6cm, height=7.0cm, scale only axis,
+      xmin=2010, xmax=2027, ymin=550, ymax=1650,
+      axis lines=left, axis line style={ink!60, line width=.5pt},
+      clip=false,
+      xtick={2010,2012,2014,2016,2018,2020,2022,2024,2027},
+      xticklabel style={/pgf/number format/1000 sep=, font=\footnotesize, text=ink2},
+      ytick={600,800,1000,1200,1400,1600},
+      yticklabel={\pgfmathparse{\tick/1000}\$\pgfmathprintnumber[fixed,precision=1]{\pgfmathresult}T},
+      yticklabel style={font=\footnotesize, text=ink2},
+      tick style={ink!60}, tick align=outside,
+      ymajorgrids, grid style={ink!12, line width=.3pt},
+      every axis plot/.append style={line width=1.1pt, line join=round},
+    ]
+    % projection zone
+    \fill[ink!5] (axis cs:2024,550) rectangle (axis cs:2027,1650);
+    \node[anchor=north west, font=\footnotesize\itshape, text=ink2] at (axis cs:2024,1650) {projected};
+
+    % corrected Bay Area band (raw TikZ so it sits above the projection zone)
+    \fill[bay!18] (axis cs:2024,1216.3) -- (axis cs:2025,1323.3) -- (axis cs:2026,1427.6) -- (axis cs:2027,1555.9)
+      -- (axis cs:2027,1458.2) -- (axis cs:2026,1383.0) -- (axis cs:2025,1304.2) -- cycle;
+    \pattern[pattern=north east lines, pattern color=bay!50] (axis cs:2024,1216.3) -- (axis cs:2025,1323.3) -- (axis cs:2026,1427.6) -- (axis cs:2027,1555.9)
+      -- (axis cs:2027,1458.2) -- (axis cs:2026,1383.0) -- (axis cs:2025,1304.2) -- cycle;
+    \addplot[bay, line width=.5pt, dashed] coordinates {(2024,1216.3) (2025,1323.3) (2026,1427.6) (2027,1555.9)};
+    \addplot[bay, line width=.5pt, dashed] coordinates {(2024,1216.3) (2025,1304.2) (2026,1383.0) (2027,1458.2)};
+
+    % memo's 3-county LA (de-emphasised)
+    \addplot[ghost, line width=.8pt] table[x=year, y=la3, restrict x to domain=2010:2024] {\data};
+    \addplot[ghost, line width=.8pt, dashed] table[x=year, y=la3, restrict x to domain=2024:2027] {\data};
+    % Los Angeles-Long Beach CSA, 5 counties
+    \addplot[la] table[x=year, y=la5, restrict x to domain=2010:2024] {\data};
+    \addplot[la, dashed] table[x=year, y=la5, restrict x to domain=2024:2027] {\data};
+    % Florida (actual through 2025)
+    \addplot[fl] table[x=year, y=fl, restrict x to domain=2010:2025] {\data};
+    \addplot[fl, dashed] table[x=year, y=fl, restrict x to domain=2025:2027] {\data};
+    % Bay Area, 13-county CSA
+    \addplot[bay, line width=1.4pt] table[x=year, y=bay, restrict x to domain=2010:2024] {\data};
+    \addplot[bay, line width=1.4pt, dashed] table[x=year, y=bay, restrict x to domain=2024:2027] {\data};
+
+    % last-actual markers (shape differs per series for grey-scale printing)
+    \addplot[bay, only marks, mark=*, mark size=2pt] coordinates {(2024,1216.3)};
+    \addplot[la, only marks, mark=square*, mark size=1.9pt] coordinates {(2024,1351.1)};
+    \addplot[fl, only marks, mark=triangle*, mark size=2.4pt] coordinates {(2025,1393.8)};
+    \addplot[ghost, only marks, mark=diamond*, mark size=2.2pt] coordinates {(2024,1143.5)};
+
+    % direct labels at the right edge
+    \node[anchor=west, font=\footnotesize\bfseries, text=bay] at (axis cs:2027,1545) {Bay Area, corrected\enspace \$1.46--1.56T};
+    \node[anchor=west, font=\footnotesize, text=fl]  at (axis cs:2027,1478.7) {Florida\enspace \$1.48T};
+    \node[anchor=west, font=\footnotesize, text=la]  at (axis cs:2027,1408.6) {Los Angeles--Long Beach CSA, 5 counties\enspace \$1.41T};
+    \node[anchor=west, font=\footnotesize\bfseries, text=bay] at (axis cs:2027,1340.7) {Bay Area, 13-county CSA (official)\enspace \$1.34T};
+    \node[anchor=west, font=\footnotesize, text=ghost] at (axis cs:2027,1192.2) {LA + Orange + Ventura (memo's ``LA CSA'')\enspace \$1.19T};
+  \end{axis}
+
+  % ---- key and source ----------------------------------------------------
+  \node[anchor=north west, font=\footnotesize, text=ink2, text width=18.8cm, align=left] at (0,-10.05)
+    {\textbf{Reading the chart.} Markers show the last BEA estimate (Florida 2025; counties 2024). In real terms the Bay Area's gap to the
+     official Los Angeles CSA is 10\% (2024), not the 20\% seen in nominal dollars, because the Bay Area's industry mix carries lower
+     implied prices. Chained-dollar county values are summed, which BEA notes is approximate.\\[2pt]
+     \textbf{Sources.} BEA CAGDP1 county real GDP (Dec 2025 vintage) summed to CSA definitions per OMB Bulletin 23-01; BEA SAGDP1 state
+     real GDP through 2025; Nvidia Forms 10-K (FY2024--26) and Q2 FY2027 results; US GDP price index from BEA, extended at 2.5\%/yr.};
+\end{tikzpicture}
+\end{document}
