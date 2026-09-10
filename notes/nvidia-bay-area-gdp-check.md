@@ -73,8 +73,13 @@ change the total.
 - BEA's county GDP methodology (SCB, March 2020) states the regional program
   "relies on the income approach" and that "the initial regional estimates
   are then scaled to the national estimates so that all BEA estimates are
-  reconciled." State value added by industry sums to national GDP by
-  industry, which is consistent with national GDP. So the regional accounts
+  reconciled." BEA's *GDP by State: Concepts and Methodology* says the
+  state estimates "are consistent with national totals of the GDP by
+  Industry Accounts" and that the allocation "yields an additive system in
+  which state estimates sum to the national estimate." Manufacturing gross
+  operating surplus is allocated with Economic Census and Annual Survey of
+  Manufactures value added and payroll, not with corporate profits by
+  location. So the regional accounts
   redistribute, but cannot add, the missing national total. Confirmed.
 - BEA underlying-detail table UVA205: 2024 value added of "Semiconductor and
   other electronic component manufacturing" = **$111.4B**; all "Computer and
