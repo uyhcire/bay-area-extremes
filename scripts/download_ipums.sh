@@ -12,8 +12,13 @@
 # Usage:
 #   scripts/download_ipums.sh [SAMPLE] [COLLECTION]
 #
-#   SAMPLE      IPUMS sample id   (default: us2022a = ACS 2022 1-year)
+#   SAMPLE      IPUMS sample id   (default: us2022a = ACS 2022 1-year);
+#               comma-separate several to get one multi-sample extract
 #   COLLECTION  IPUMS collection  (default: usa)
+#
+# Example — CPS ASEC, four years in one extract (used by analysis/gender_wage_ratios):
+#   IPUMS_VARS="YEAR ASECWT AGE SEX EDUC INCWAGE MARST WKSWORK1 UHRSWORKLY" \
+#     scripts/download_ipums.sh cps2001_03s,cps2010_03s,cps2019_03s,cps2025_03s cps
 #
 # Override the variable list with IPUMS_VARS (space- or comma-separated):
 #   IPUMS_VARS="AGE SEX STATEFIP PUMA HHINCOME INCTOT" scripts/download_ipums.sh
@@ -56,7 +61,7 @@ import os
 from ipumspy import IpumsApiClient, MicrodataExtract
 
 collection = os.environ["COLLECTION"]
-sample = os.environ["SAMPLE"]
+samples = os.environ["SAMPLE"].replace(",", " ").split()
 variables = os.environ["IPUMS_VARS"].replace(",", " ").split()
 outdir = os.environ["OUTDIR"]
 
@@ -64,12 +69,12 @@ client = IpumsApiClient(os.environ["IPUMS_API_KEY"])
 
 extract = MicrodataExtract(
     collection=collection,
-    samples=[sample],
+    samples=samples,
     variables=variables,
-    description=f"bay-area-extremes {collection} {sample}",
+    description=f"bay-area-extremes {collection} {' '.join(samples)}",
 )
 
-print(f"Submitting {collection} extract for sample {sample} ({len(variables)} variables)...")
+print(f"Submitting {collection} extract for {', '.join(samples)} ({len(variables)} variables)...")
 client.submit_extract(extract)
 print(f"  extract id: {extract.extract_id}; waiting for it to build (can take minutes)...")
 client.wait_for_extract(extract)

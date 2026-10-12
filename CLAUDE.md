@@ -40,6 +40,7 @@ were verified working from this repo's environment on 2026-05-31.
 | Life exp.     | No         | `https://ftp.cdc.gov/pub/.../NVSS/USALEEP/CSV/<ST>_A.CSV` (tract)         |
 | CA DOF pop.   | No         | `https://dof.ca.gov/.../estimates-e1/E-1_<year>_InternetVersion.xlsx`     |
 | IPUMS         | **Yes**    | Extract API via `ipumspy` (free key from `account.ipums.org/api_keys`)    |
+| CPS ASEC      | No         | `https://www2.census.gov/programs-surveys/cps/datasets/<year>/march/...`  |
 
 \* The official JSON APIs (Census Data API, FRED API, Census BDS timeseries)
 require a free key, but there are key-free bulk/CSV routes that cover most
@@ -80,7 +81,8 @@ scripts/download_cdc_places.sh [STATE_ABBR]                 # county health, def
 scripts/download_cdph_vital.sh [DATASET_SLUG ...]           # CDPH deaths + births by county
 scripts/download_life_expectancy_tract.sh [ST]              # USALEEP tract life expectancy, default CA
 scripts/download_dof_population.sh                          # CA DOF E-1 city/county population
-scripts/download_ipums.sh [SAMPLE] [COLLECTION]            # needs IPUMS_API_KEY + ipumspy
+scripts/download_ipums.sh [SAMPLE[,SAMPLE...]] [COLLECTION] # needs IPUMS_API_KEY + ipumspy
+scripts/download_cps_asec.sh [SURVEY_YEAR ...]              # Census CPS ASEC microdata, default 2001 2010 2019 2025
 ```
 
 Each script's header comment documents its arguments and examples.
@@ -580,6 +582,31 @@ series or NHGIS small-area tables.
 > live `IPUMS_API_KEY` — the extract submitted, built server-side, and
 > downloaded (`usa_00001.dat.gz` ~76 MB + DDI), parsing to 3,373,378 person
 > records nationally (391,171 in California) across the 15 default variables.
+
+> **IPUMS CPS needs its own registration.** The account behind the current
+> `IPUMS_API_KEY` is registered for IPUMS USA only; CPS extract requests fail
+> with "not registered to IPUMS cps" (register at
+> https://uma.pop.umn.edu/cps/registration/new). Until then, use the keyless
+> Census CPS ASEC route below.
+
+---
+
+## CPS ASEC (Census Bureau public-use microdata)
+
+No key. The March Annual Social and Economic Supplement person/family/household
+files — the same source IPUMS CPS harmonizes. 2019+ ship as CSV zips
+(`asecpub<yy>csv.zip`, person file `pppub<yy>.csv`); earlier years are
+hierarchical fixed-width `.dat.gz` files (column 1 = record type, `3` = person)
+with layouts in `https://www2.census.gov/programs-surveys/cps/techdocs/cpsmar<yy>.pdf`.
+For 2001 use the SCHIP-expanded `chip2001pub.cps.gz` (what IPUMS uses).
+
+```bash
+curl -O "https://www2.census.gov/programs-surveys/cps/datasets/2025/march/asecpub25csv.zip"
+curl -O "https://www2.census.gov/programs-surveys/cps/datasets/2010/march/asec2010_pubuse.dat.gz"
+```
+
+`analysis/gender_wage_ratios/build_extract.py` parses both formats into IPUMS
+variable names (MARSUPWT/100 -> ASECWT, WSAL_VAL -> INCWAGE, A_HGA -> EDUC, ...).
 
 ---
 
