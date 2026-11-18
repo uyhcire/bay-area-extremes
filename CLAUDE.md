@@ -81,6 +81,9 @@ scripts/download_cdph_vital.sh [DATASET_SLUG ...]           # CDPH deaths + birt
 scripts/download_life_expectancy_tract.sh [ST]              # USALEEP tract life expectancy, default CA
 scripts/download_dof_population.sh                          # CA DOF E-1 city/county population
 scripts/download_ipums.sh [SAMPLE] [COLLECTION]            # needs IPUMS_API_KEY + ipumspy
+
+# Analysis
+scripts/estimate_county_gdp.py [TARGET_YEAR] [DATA_DIR]     # nowcast county real GDP from BEA state GDP + QCEW (keyless)
 ```
 
 Each script's header comment documents its arguments and examples.
