@@ -21,8 +21,14 @@ GDP weights (Laspeyres approximation to BEA's Fisher chaining).
 The script backtests every variant on 2018..(last published year) and then
 prints the nowcast for TARGET.
 
-Usage: scripts/estimate_county_gdp.py [TARGET_YEAR] [DATA_DIR]
-       (defaults: 2025, data/raw/gdp_nowcast)
+With --partial the script instead tracks a year that is still in progress,
+using BEA *quarterly* state GDP by industry (SQGDP9) and QCEW first-quarter
+wages: year-over-year growth of the quarters published so far, weighted by
+county GDP from two years earlier (the latest that would have been published
+at that point). It is backtested against BEA's eventual full-year growth.
+
+Usage: scripts/estimate_county_gdp.py [--partial] [TARGET_YEAR] [DATA_DIR]
+       (defaults: 2025 (2026 with --partial), data/raw/gdp_nowcast)
 """
 import csv
 import io
@@ -33,8 +39,10 @@ import zipfile
 
 import pandas as pd
 
-TARGET = int(sys.argv[1]) if len(sys.argv) > 1 else 2025
-DATA = sys.argv[2] if len(sys.argv) > 2 else "data/raw/gdp_nowcast"
+PARTIAL = "--partial" in sys.argv
+ARGS = [a for a in sys.argv[1:] if not a.startswith("--")]
+TARGET = int(ARGS[0]) if ARGS else (2026 if PARTIAL else 2025)
+DATA = ARGS[1] if len(ARGS) > 1 else "data/raw/gdp_nowcast"
 FIRST = 2018  # first backtest year (needs QCEW for FIRST-1)
 
 COUNTIES = {
@@ -78,26 +86,34 @@ def bea_table(zipname, member_prefix):
     df = pd.DataFrame(rows[1:], columns=rows[0])
     df["fips"] = df["GeoFIPS"].str.strip().str.strip('"')
     df["line"] = pd.to_numeric(df["LineCode"], errors="coerce")
-    years = [c for c in df.columns if c.isdigit()]
+    years = [c for c in df.columns if c[:4].isdigit()]
     long = df.melt(["fips", "line"], years, "year", "value")
+    if ":Q" in years[0]:   # quarterly table: index by (year, quarter)
+        long["qtr"] = long["year"].str[-1].astype(int)
+        long["year"] = long["year"].str[:4].astype(int)
+        long["value"] = pd.to_numeric(long["value"], errors="coerce")
+        return long.dropna(subset=["line"]).set_index(
+            ["fips", "line", "year", "qtr"])["value"]
     long["year"] = long["year"].astype(int)
     long["value"] = pd.to_numeric(long["value"], errors="coerce")  # (D) -> NaN
     return long.dropna(subset=["line"]).set_index(["fips", "line", "year"])["value"]
 
 
-def qcew_wages(years):
-    """Series (fips, qcew_industry, year) -> total annual wages."""
+def qcew_wages(years, qtr="a"):
+    """Series (fips, qcew_industry, year) -> total wages (annual or one qtr)."""
+    tag = "" if qtr == "a" else f"q{qtr}"
+    col = "total_annual_wages" if qtr == "a" else "total_qtrly_wages"
     out = []
     for y in years:
         for a in ["06000", *COUNTIES]:
-            path = os.path.join(DATA, f"qcew_{y}_{a}.csv")
-            fetch(f"https://data.bls.gov/cew/data/api/{y}/a/area/{a}.csv", path)
+            path = os.path.join(DATA, f"qcew_{y}{tag}_{a}.csv")
+            fetch(f"https://data.bls.gov/cew/data/api/{y}/{qtr}/area/{a}.csv", path)
             q = pd.read_csv(path, dtype={"area_fips": str, "industry_code": str})
             q = q[q["disclosure_code"].isna()]
             sec = q[(q.own_code == 5) & q.agglvl_code.isin([54, 74])]
             gov = q[q.own_code.isin([1, 2, 3]) & q.agglvl_code.isin([51, 71])]
-            w = sec.groupby("industry_code")["total_annual_wages"].sum()
-            w["GOV"] = gov["total_annual_wages"].sum()
+            w = sec.groupby("industry_code")[col].sum()
+            w["GOV"] = gov[col].sum()
             out.append(pd.DataFrame({"fips": a, "year": y, "ind": w.index,
                                      "wages": w.values}))
     return pd.concat(out).set_index(["fips", "ind", "year"])["wages"]
@@ -109,6 +125,8 @@ def main():
     sreal = bea_table("SAGDP", "SAGDP9_CA_")     # state real by industry
     last_pub = int(cnom.index.get_level_values("year").max())
     last_state = int(sreal.index.get_level_values("year").max())
+    if PARTIAL:
+        return partial(cnom, creal, last_pub)
     if TARGET > last_state:
         sys.exit(f"State GDP by industry only runs through {last_state}.")
     wages = qcew_wages(range(FIRST - 1, TARGET + 1))
@@ -201,6 +219,74 @@ def main():
     reg = (con * w).sum(axis=1) / w.sum() * 100
     reg.index = [NAMES[i] for i in reg.index]
     print(reg.sort_values(ascending=False).round(2).to_string())
+
+
+def partial(cnom, creal, last_pub):
+    """Track an in-progress year from quarterly state GDP + Q1 county wages."""
+    sq = bea_table("SQGDP", "SQGDP9_CA_").sort_index()
+    have = sq[("06000", 1, TARGET)].dropna().index.tolist()   # quarters out
+    wages = qcew_wages(range(FIRST - 1, TARGET + 1), qtr=1)
+    first = FIRST + 1                                        # needs t-2 weights
+
+    def state_growth(line, t, qs):
+        return (sum(sq[("06000", line, t, q)] for q in qs) /
+                sum(sq[("06000", line, t - 1, q)] for q in qs))
+
+    def share_ratio(c, line, t):
+        ind = SECTORS[line]
+        try:
+            r = ((wages[(c, ind, t)] / wages[("06000", ind, t)]) /
+                 (wages[(c, ind, t - 1)] / wages[("06000", ind, t - 1)]))
+        except KeyError:
+            return 1.0
+        return r if 0.5 < r < 2.0 else 1.0
+
+    def predict(c, t, qs, lam):
+        wy = min(t - 2, last_pub)
+        tot_w, acc, used = cnom[(c, 1, wy)], 0.0, 0.0
+        for line in SECTORS:
+            w = cnom.get((c, line, wy))
+            if w is None or pd.isna(w):
+                continue
+            l = 0.0 if line == 56 else lam
+            g = state_growth(line, t, qs) * share_ratio(c, line, t) ** l - 1
+            acc += w / tot_w * g
+            used += w / tot_w
+        return acc + (1 - used) * (state_growth(1, t, qs) - 1)
+
+    def region(vals, t):
+        w = pd.Series({c: cnom[(c, 1, min(t - 2, last_pub))] for c in COUNTIES})
+        return float((pd.Series(vals) * w).sum() / w.sum())
+
+    def actual(c, t):
+        return creal[(c, 1, t)] / creal[(c, 1, t - 1)] - 1
+
+    years = range(first, TARGET + 1)
+    bt = [t for t in years if t <= last_pub]
+    rows = {"ACTUAL full-year (BEA)": {
+        t: 100 * region({c: actual(c, t) for c in COUNTIES}, t) for t in bt}}
+    preds = {}
+    for qs in ([1], have):
+        for lam in (0.0, 0.5, 1.0):
+            name = f"Q{qs[0]}-Q{qs[-1]} state yoy, lambda={lam}"
+            preds[name] = {t: {c: predict(c, t, qs, lam) for c in COUNTIES}
+                           for t in years}
+            rows[name] = {t: 100 * region(preds[name][t], t) for t in years}
+    tab = pd.DataFrame(rows).T[list(years)]
+    tab["MAE"] = (tab[bt] - tab.loc["ACTUAL full-year (BEA)", bt]).abs().mean(axis=1)
+    tab["bias"] = (tab[bt] - tab.loc["ACTUAL full-year (BEA)", bt]).mean(axis=1)
+    print(f"State quarterly GDP through {TARGET} Q{have[-1]}; QCEW wages "
+          f"through {TARGET} Q1; county GDP through {last_pub}.\n")
+    print("=== Bay Area real GDP, partial-year yoy growth vs eventual "
+          "full-year growth, % ===")
+    print(tab.round(2).to_string(), "\n")
+    best = min(preds, key=lambda n: tab.loc[n, "MAE"])
+    print(f"=== {TARGET} partial-year yoy by county, % ({best}) ===")
+    out = pd.Series({COUNTIES[c]: 100 * v for c, v in preds[best][TARGET].items()})
+    out["BAY AREA (9 counties)"] = tab.loc[best, TARGET]
+    print(out.round(2).to_string())
+    print(f"\nCalifornia total, same quarters yoy: "
+          f"{100 * (state_growth(1, TARGET, have) - 1):.2f}%")
 
 
 if __name__ == "__main__":

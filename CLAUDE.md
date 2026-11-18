@@ -83,7 +83,7 @@ scripts/download_dof_population.sh                          # CA DOF E-1 city/co
 scripts/download_ipums.sh [SAMPLE] [COLLECTION]            # needs IPUMS_API_KEY + ipumspy
 
 # Analysis
-scripts/estimate_county_gdp.py [TARGET_YEAR] [DATA_DIR]     # nowcast county real GDP from BEA state GDP + QCEW (keyless)
+scripts/estimate_county_gdp.py [TARGET_YEAR] [DATA_DIR]     # nowcast county real GDP from BEA state GDP + QCEW (keyless); --partial tracks an in-progress year
 ```
 
 Each script's header comment documents its arguments and examples.
