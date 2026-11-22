@@ -1,4 +1,4 @@
-"""Plot the median college wage premium (top) and the HS-minus-BA unemployment gap (bottom).
+"""Plot the median college wage premium (top) and the HS/BA unemployment-rate ratio (bottom).
 
 Reads analysis/output/{college_premium,unemployment_gap}_longrun.csv -> analysis/output/college_premium_longrun.png
 Two panels on one time axis rather than two y-scales on one plot: the measures have different units.
@@ -37,13 +37,14 @@ for a in (ax, ax2):
     for x0, x1, _ in REC:
         a.axvspan(x0, x1, color=GRID, alpha=0.7, lw=0)
 ax.text(1981.45, 0.985, "recessions\nshaded", transform=ax.get_xaxis_transform(), ha="center", va="top", color=INK2, fontsize=9)
-ax2.plot(u.index, u.gap, color=AQUA, lw=2, solid_capstyle="round")
-ax2.plot([last], [u.gap.iloc[-1]], "o", ms=6, color=AQUA, mec=SURF, mew=1.5, zorder=5)
-ax2.annotate(f"{u.gap.iloc[-1]:.1f} pts", (last, u.gap.iloc[-1]), xytext=(9, -4), textcoords="offset points", color=INK, fontsize=10.5)
-for y in (1983, 2010, 2020):
-    ax2.annotate(f"{u.gap[y]:.1f}", (y, u.gap[y]), xytext=(0, 7), textcoords="offset points", ha="center", color=INK2, fontsize=10)
-ax2.set_title("Unemployment gap: high-school rate minus college rate (percentage points)", loc="left", color=INK, fontsize=11.5, pad=8)
-ax2.set_ylim(0, 8.5); ax2.set_yticks(range(0, 9, 2)); ax2.set_ylabel("percentage points", color=INK2)
+u["ratio"] = u.u_hs / u.u_ba
+ax2.plot(u.index, u.ratio, color=AQUA, lw=2, solid_capstyle="round")
+ax2.plot([last], [u.ratio.iloc[-1]], "o", ms=6, color=AQUA, mec=SURF, mew=1.5, zorder=5)
+ax2.annotate(f"{u.ratio.iloc[-1]:.1f}×", (last, u.ratio.iloc[-1]), xytext=(9, -4), textcoords="offset points", color=INK, fontsize=10.5)
+for y, dy in ((1979, -15), (1982, 7), (2000, 7), (2010, 9)):
+    ax2.annotate(f"{u.ratio[y]:.1f}", (y, u.ratio[y]), xytext=(0, dy), textcoords="offset points", ha="center", color=INK2, fontsize=10)
+ax2.set_title("Unemployment ratio: high-school rate divided by college rate", loc="left", color=INK, fontsize=11.5, pad=8)
+ax2.set_ylim(1.5, 3.1); ax2.set_yticks([1.5, 2.0, 2.5, 3.0]); ax2.set_ylabel("ratio", color=INK2)
 ax2.yaxis.grid(True, color=GRID, lw=1); ax2.set_axisbelow(True)
 for sp in ("top", "right", "left"): ax2.spines[sp].set_visible(False)
 ax2.spines["bottom"].set_color(GRID); ax2.tick_params(colors=INK2, length=0)
