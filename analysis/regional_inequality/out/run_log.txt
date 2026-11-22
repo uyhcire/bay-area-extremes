@@ -1,0 +1,15 @@
+YEAR 2024. BEA county units with data: 3115; rows with (NA) in 2024 dropped as defunct codes: 34
+CT tracts not matched by tract code (assigned to nearest tract): 0
+counties lacking a center of population: []
+delineation rows not in BEA county list (PR etc. expected): []
+combination areas whose components fall in different CBSA/CSA: []
+combination areas whose components fall in different CZs: []
+counties without CZ: []
+max |state income dev| 0.00e+00; max |state pop dev| 0.00e+00
+US: county-sum income / BEA US = 1.000000; pop = 1.000000
+counties with exactly one region (csa/msa/cz): 3115 3115 3115 of 3115
+number of regions (csa-based / msa-based / cz): 340 435 588
+pairs of distinct counties: 4850055; min distance 3.90 km; max 8451 km
+min of fitted g by bandwidth (negative values clipped to 0): {0.2: -1.4134596880212293e-05, 0.1: -6.046141918588205e-07, 0.4: -0.0006893563383325351}
+single-region states and their D: [('District of Columbia', 0.0), ('Rhode Island', 0.0)]
+CA contributions sum 0.236417 vs D 0.236417
