@@ -16,7 +16,8 @@ Two series per year:
        experience x sex, race/ethnicity and month dummies
   raw  log(median wage, BA or more) - log(median wage, exactly high school)
 Sample: wage & salary workers 18-64, non-imputed weekly earnings where the flag exists
-(flags are incomplete 1989-93 and absent Jan 1994 - Aug 1995). NBER files are used for
+(flags are incomplete 1989-93 and absent Jan 1994 - Aug 1995). The NBER May CPS extracts give
+1973-78 (one month a year, so noisier; 1979 from both is a cross-check). NBER ORG files are used for
 1979-2024, the Census files for 2025+; 2015-2024 from both sources is a cross-check.
 """
 import os, sys
@@ -62,6 +63,28 @@ def morg(year, cpi):
     return d[["date", "lnw", "wt", "edu", "exp", "female", "race", "imputed", "top"]]
 
 
+def may(year, cpi):
+    """NBER May CPS extract (1973-78: whole May sample asked usual earnings; non-response not imputed)."""
+    d = pd.read_stata(f"data/raw/nber_may/cpsmay{year % 100:02d}.dta", convert_categoricals=False,
+                      columns=["x67", "x69", "x70", "x72", "x73", "x85", "x108", "x185", "x186", "x187", "x188", "x80"])
+    d = d[d.x67.between(18, 64) & (d.x108 == 1) & (d.x186 > 0) & (d.x80 > 0)].copy()
+    d["date"] = pd.Timestamp(year, 5, 1)
+    hourly = (d.x187 == 1) & (d.x188 > 0)
+    d["w"] = np.where(hourly, d.x188 / 100.0, d.x186 / d.x185.where(d.x185 > 0))
+    d = d[d.w.notna()].copy()
+    d["top"] = ~hourly[d.index] & (d.x186 >= 999)
+    d = d[d.w / (cpi[d.date.iloc[0]] / cpi[cp.REF]) >= 3.0].copy()
+    d["lnw"] = np.log(d.w)
+    yrs = d.x72 - 1 - (d.x73 == 2)
+    d["edu"] = np.select([yrs < 12, yrs == 12, yrs < 16, yrs < 18], [0, 1, 2, 3], 4)
+    d["exp"] = (d.x67 - yrs - 6).clip(lower=0)
+    d["female"] = (d.x70 == 2).astype(float)
+    d["race"] = np.select([d.x85.between(1, 7), d.x69 == 1, d.x69 == 2], [1, 0, 2], 3)
+    d["imputed"] = False
+    d["wt"] = d.x80
+    return d[["date", "lnw", "wt", "edu", "exp", "female", "race", "imputed", "top"]]
+
+
 def wmedian(x, w):
     i = np.argsort(x.values); c = np.cumsum(w.values[i])
     return x.values[i][np.searchsorted(c, 0.5 * c[-1])]
@@ -93,6 +116,9 @@ if __name__ == "__main__":
         rows.append(estimate(frame(), y, source)); print(rows[-1], flush=True)
         pd.DataFrame(rows).to_csv(out, index=False)
 
+    if os.path.exists("data/raw/nber_may/cpsmay73.dta"):        # May only; 1979 overlaps the ORG series
+        for y in range(1973, 1980):
+            add(lambda: may(y, cpi), y, "nber_may")
     for y in range(1979, 2025):
         add(lambda: morg(y, cpi), y, "nber_morg")
     c = cp.load()
