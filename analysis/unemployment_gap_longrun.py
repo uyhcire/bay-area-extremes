@@ -6,6 +6,10 @@ Ages 18-64 (same as the wage-premium sample). NBER ORG extracts for 1979-2024 (t
 quarter of the CPS sample in its outgoing months, final weights); Census basic monthly
 files (all rotation groups, composite weights) for 2024 onward -- 2024 from both is a
 cross-check. Labour-force questions were redesigned in January 1994.
+
+Also writes unemployment_gap_may_1969_1987.csv from the NBER May CPS extracts
+(https://data.nber.org/cps-may/cpsmay<yy>.dta -> data/raw/nber_may/): May only, so
+noisier (a few hundred unemployed graduates a year), but it reaches back to 1969.
 """
 import io, os, sys
 from concurrent.futures import ThreadPoolExecutor
@@ -43,6 +47,15 @@ def morg(year):
     return rates(pd.Series(edu, index=d.index), emp, un, d.weight.fillna(0), year, "nber_morg", d.intmonth.nunique())
 
 
+def may(year):
+    d = pd.read_stata(f"data/raw/nber_may/cpsmay{year % 100:02d}.dta", columns=["x67", "x72", "x73", "x75", "x80"],
+                      convert_categoricals=False)          # age, highest grade (+1), completed?, ESR, weight
+    d = d[d.x67.between(18, 64) & (d.x80 > 0)]
+    yrs = d.x72 - 1 - (d.x73 == 2)
+    edu = pd.Series(np.select([yrs < 12, yrs == 12, yrs < 16, yrs < 18], [0, 1, 2, 3], 4), index=d.index)
+    return rates(edu, d.x75.isin([1, 2]), d.x75 == 3, d.x80, year, "nber_may", 1)
+
+
 def census_month(ym):
     y, m = ym
     raw = b.fetch(f"{b.BASE}/{y}/basic/{b.MON[m - 1]}{y % 100:02d}pub.csv")
@@ -57,6 +70,8 @@ def census_month(ym):
 
 
 if __name__ == "__main__":
+    if os.path.exists("data/raw/nber_may/cpsmay69.dta"):
+        pd.DataFrame([may(y) for y in range(1969, 1988)]).to_csv(f"{OUT}/unemployment_gap_may_1969_1987.csv", index=False)
     rows = [morg(y) for y in range(1979, 2025)]
     today = pd.Timestamp.today()
     yms = [(y, m) for y in range(2024, today.year + 1) for m in range(1, 13) if (y, m) < (today.year, today.month)]
