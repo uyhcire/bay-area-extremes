@@ -19,17 +19,15 @@ for col, c in (("raw", ORANGE), ("adj", BLUE)):
     ax.plot([last], [s[col].iloc[-1]], "o", ms=6, color=c, mec=SURF, mew=1.5, zorder=5)
 pk = s.adj.idxmax()
 ax.annotate(f"{s.adj[1979]:.2f}", (1979, s.adj[1979]), xytext=(0, -15), textcoords="offset points", ha="center", color=INK2, fontsize=10)
-ax.annotate(f"peak {pk}: {s.adj[pk]:.2f}", (pk, s.adj[pk]), xytext=(0, 9), textcoords="offset points", ha="center", color=INK2, fontsize=10)
-ax.annotate(f"{s.adj.iloc[-1]:.2f}", (last, s.adj.iloc[-1]), xytext=(9, -4), textcoords="offset points", color=INK2, fontsize=10)
-ax.annotate(f"{s.raw.iloc[-1]:.2f}", (last, s.raw.iloc[-1]), xytext=(9, -4), textcoords="offset points", color=INK2, fontsize=10)
-# direct labels (ink text; the line carries the color)
-ax.annotate("Adjusted for experience, sex, race", (1996, s.adj[1996]), xytext=(0, -30), textcoords="offset points",
-            ha="left", color=INK, fontsize=10.5)
-ax.annotate("Raw gap between medians", (1994, s.raw[1994]), xytext=(0, 22), textcoords="offset points",
-            ha="right", color=INK, fontsize=10.5)
+ax.annotate(f"peak {pk}: {s.adj[pk]:.2f}", (pk, s.adj[pk]), xytext=(-8, 16), textcoords="offset points", ha="right", color=INK2, fontsize=10)
+ax.annotate(f"Adjusted  {s.adj.iloc[-1]:.2f}", (last, s.adj.iloc[-1]), xytext=(9, -4), textcoords="offset points", color=INK, fontsize=10.5)
+ax.annotate(f"Raw  {s.raw.iloc[-1]:.2f}", (last, s.raw.iloc[-1]), xytext=(9, -4), textcoords="offset points", color=INK, fontsize=10.5)
+h = [plt.Line2D([], [], color=BLUE, lw=2), plt.Line2D([], [], color=ORANGE, lw=2)]
+ax.legend(h, ["Adjusted for experience, sex, race/ethnicity (median regression)", "Raw gap between group medians"],
+          loc="lower right", bbox_to_anchor=(0.93, 0.03), frameon=False, fontsize=10, labelcolor=INK2, handlelength=1.6)
 ax.axvspan(1980, 1982.9, color=GRID, alpha=0.7, lw=0)
 ax.text(1981.45, 0.985, "1980–82\nrecessions", transform=ax.get_xaxis_transform(), ha="center", va="top", color=INK2, fontsize=9)
-ax.set_xlim(1978, last + 3.5); ax.set_xticks(range(1980, last + 1, 5))
+ax.set_xlim(1978, last + 6); ax.set_xticks(range(1980, last + 1, 5))
 lo = np.floor(min(s.adj.min(), s.raw.min()) * 10) / 10
 ax.set_ylim(lo, np.ceil(max(s.adj.max(), s.raw.max()) * 10) / 10 + 0.02)
 ax.yaxis.grid(True, color=GRID, lw=1); ax.set_axisbelow(True)
