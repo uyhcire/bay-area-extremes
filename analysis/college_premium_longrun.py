@@ -57,7 +57,7 @@ def morg(year, cpi):
     d["female"] = (d.sex == 2).astype(float)
     hisp = d.ethnic.between(1, 7) if year < 2003 else d.ethnic.notna()
     d["race"] = np.select([hisp, d.race == 1, d.race == 2], [1, 0, 2], 3)
-    d["imputed"] = d.I25d.fillna(0) > 0
+    d["imputed"] = (d.I25d.fillna(0) > 0) if "I25d" in d else False
     d["wt"] = d.earnwt
     return d[["date", "lnw", "wt", "edu", "exp", "female", "race", "imputed", "top"]]
 
@@ -83,12 +83,20 @@ def estimate(d, year, source):
 if __name__ == "__main__":
     cpi = pd.read_csv(f"{MORG}/CPIAUCSL.csv", parse_dates=["observation_date"]).set_index("observation_date").CPIAUCSL
     cpi = cpi.reindex(pd.date_range(cpi.index.min(), cpi.index.max(), freq="MS")).interpolate()
-    rows = []
+    out = f"{cp.OUT}/college_premium_longrun.csv"
+    rows = pd.read_csv(out).to_dict("records") if os.path.exists(out) else []      # resumable
+    done = {(r["source"], r["year"]) for r in rows}
+
+    def add(frame, y, source):
+        if (source, y) in done:
+            return
+        rows.append(estimate(frame(), y, source)); print(rows[-1], flush=True)
+        pd.DataFrame(rows).to_csv(out, index=False)
+
     for y in range(1979, 2025):
-        rows.append(estimate(morg(y, cpi), y, "nber_morg")); print(rows[-1], flush=True)
+        add(lambda: morg(y, cpi), y, "nber_morg")
     c = cp.load()
     c["lnw"] = np.log(c.w_pub); c["imputed"] = c.prwernal == 1
     c["top"] = ~c.hourly & c.wk_top
     for y in sorted(c.hryear4.unique()):
-        rows.append(estimate(c[c.hryear4 == y], int(y), "census_basic")); print(rows[-1], flush=True)
-    pd.DataFrame(rows).to_csv(f"{cp.OUT}/college_premium_longrun.csv", index=False)
+        add(lambda: c[c.hryear4 == y], int(y), "census_basic")
