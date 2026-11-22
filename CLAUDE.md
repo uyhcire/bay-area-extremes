@@ -646,6 +646,27 @@ results — share the direct link.
 
 ---
 
+## CPS basic monthly / ORG earnings (Census Bureau)
+
+No key. Monthly person-level CPS files, including the outgoing-rotation-group
+(ORG) earnings questions, under
+`https://www2.census.gov/programs-surveys/cps/datasets/<YEAR>/basic/<mon><yy>pub.csv`
+(CSV from 2020; fixed-width `.dat.gz` before). October 2025 does not exist (not
+collected during the shutdown). `analysis/cps_org_build.py` pulls the
+earnings-eligible records into `data/raw/cps_org/`; `analysis/college_premium_cps.py`
+estimates the college wage premium from them.
+
+**Top-code break:** weekly earnings were capped at a fixed $2,884.61 through
+March 2023; from April 2023 (phased in by rotation group, complete April 2024)
+the top 3% of weekly earnings and of hourly rates are replaced by their mean,
+and the `PTWK`/`PTHR` flags are blank in May 2024. Never compare means across
+that break without a common censoring rule (the script applies one).
+
+IPUMS CPS would be the harmonized alternative, but the current `IPUMS_API_KEY`
+account is registered for IPUMS USA only (CPS extracts return HTTP 401).
+
+---
+
 ## Conventions
 
 - Put downloaded raw files under `data/raw/` (git-ignored — these are large and
