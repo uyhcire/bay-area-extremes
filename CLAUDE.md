@@ -81,6 +81,11 @@ scripts/download_cdph_vital.sh [DATASET_SLUG ...]           # CDPH deaths + birt
 scripts/download_life_expectancy_tract.sh [ST]              # USALEEP tract life expectancy, default CA
 scripts/download_dof_population.sh                          # CA DOF E-1 city/county population
 scripts/download_ipums.sh [SAMPLE] [COLLECTION]            # needs IPUMS_API_KEY + ipumspy
+BLS_USER_AGENT="name/1.0 (research; you@example.com)" scripts/download_cex.sh [YEAR]  # BLS CEX metro + U.S. spending tables
+
+# Analysis
+python3 analysis/build_income_sankey.py [YEAR]             # real-dollar income Sankey -> analysis/income_sankey.html
+#   also needs key-free BEA bulk zips (apps.bea.gov/regional/zip/MARPP.zip, SAINC.zip) and IRS <yy>incyallagi.csv
 ```
 
 Each script's header comment documents its arguments and examples.

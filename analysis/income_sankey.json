@@ -1,0 +1,347 @@
+{
+ "meta": {
+  "year": 2024,
+  "rpp": {
+   "ba": {
+    "A": 116.582,
+    "G": 111.8415,
+    "H": 197.421,
+    "U": 167.3875,
+    "S": 105.8
+   },
+   "us": {
+    "A": 100.0,
+    "G": 99.55449999999999,
+    "H": 100.6015,
+    "U": 98.5375,
+    "S": 100.16650000000001
+   }
+  },
+  "tax": {
+   "fed": {
+    "ba": 0.20054773312526872,
+    "us": 0.1484734104049187
+   },
+   "state_local_per_fed": {
+    "ba": 0.34700943156516284,
+    "us": 0.2346652863794469
+   }
+  },
+  "totals": {
+   "nominal_ba": 184755.0,
+   "nominal_us": 103012.0,
+   "real_ba": 150956.05042393005,
+   "real_us": 103035.1124597987
+  },
+  "real_income_pct": 46.509327568142076,
+  "nominal_income_pct": 79.35289092532909,
+  "cu_size_ba": 2.3,
+  "cu_size_us": 2.5
+ },
+ "groups": [
+  {
+   "group": "Housing",
+   "nominal_ba": 42518.0,
+   "real_ba": 25274.61667300141,
+   "real_us": 25838.910465748566,
+   "pct": -2.183891590534248
+  },
+  {
+   "group": "Taxes",
+   "nominal_ba": 49908.847637145096,
+   "real_ba": 42810.08014714544,
+   "real_us": 18883.641254653507,
+   "pct": 126.70458292357006
+  },
+  {
+   "group": "Saving",
+   "nominal_ba": 35333.152362854904,
+   "real_ba": 30307.55379291392,
+   "real_us": 15898.358745346495,
+   "pct": 90.6332237079821
+  },
+  {
+   "group": "Food",
+   "nominal_ba": 15632.0,
+   "real_ba": 14341.623551666298,
+   "real_us": 10741.788056696729,
+   "pct": 33.51244202519275
+  },
+  {
+   "group": "Transportation",
+   "nominal_ba": 17692.0,
+   "real_ba": 16197.760802915907,
+   "real_us": 13304.684563427563,
+   "pct": 21.744793915978633
+  },
+  {
+   "group": "Healthcare",
+   "nominal_ba": 6914.0,
+   "real_ba": 6534.971644612476,
+   "real_us": 6184.7024703868055,
+   "pct": 5.663476552070312
+  },
+  {
+   "group": "Everything else",
+   "nominal_ba": 16757.0,
+   "real_ba": 15489.443811674611,
+   "real_us": 12183.026903539032,
+   "pct": 27.139535472708374
+  }
+ ],
+ "leaves": [
+  {
+   "group": "Housing",
+   "label": "Rent, mortgage interest, property tax",
+   "cat": "H",
+   "rpp": 197.421,
+   "nominal_ba": 29810.0,
+   "nominal_us": 15910.0,
+   "real_ba": 15099.710770384103,
+   "real_us": 15814.873535682867,
+   "pct": -4.522089687819209
+  },
+  {
+   "group": "Housing",
+   "label": "Utilities, fuels, phone & internet",
+   "cat": "U",
+   "rpp": 167.3875,
+   "nominal_ba": 4677.0,
+   "nominal_us": 4681.0,
+   "real_ba": 2794.1154506758276,
+   "real_us": 4750.475707218065,
+   "pct": -41.18240734437742
+  },
+  {
+   "group": "Housing",
+   "label": "Household services (childcare, cleaning\u2026)",
+   "cat": "S",
+   "rpp": 105.8,
+   "nominal_ba": 3919.0,
+   "nominal_us": 1953.0,
+   "real_ba": 3704.1587901701328,
+   "real_us": 1949.7536601558402,
+   "pct": 89.98086096035671
+  },
+  {
+   "group": "Housing",
+   "label": "Furnishings & household supplies",
+   "cat": "G",
+   "rpp": 111.8415,
+   "nominal_ba": 4112.0,
+   "nominal_us": 3309.0,
+   "real_ba": 3676.6316617713464,
+   "real_us": 3323.8075626917926,
+   "pct": 10.615057954613306
+  },
+  {
+   "group": "Taxes",
+   "label": "Federal income & self-employment tax",
+   "cat": "A",
+   "rpp": 116.582,
+   "nominal_ba": 37051.594790359646,
+   "nominal_us": 15294.542952631486,
+   "real_ba": 31781.57416270063,
+   "real_us": 15294.542952631486,
+   "pct": 107.79682178886216
+  },
+  {
+   "group": "Taxes",
+   "label": "State & local income tax, vehicle fees",
+   "cat": "A",
+   "rpp": 116.582,
+   "nominal_ba": 12857.25284678545,
+   "nominal_us": 3589.0983020220187,
+   "real_ba": 11028.505984444811,
+   "real_us": 3589.098302022019,
+   "pct": 207.27790259273738
+  },
+  {
+   "group": "Saving",
+   "label": "Retirement & Social Security contributions",
+   "cat": "A",
+   "rpp": 116.582,
+   "nominal_ba": 17463.0,
+   "nominal_us": 9117.0,
+   "real_ba": 14979.156302002026,
+   "real_us": 9117.0,
+   "pct": 64.29918067348936
+  },
+  {
+   "group": "Saving",
+   "label": "Life & other personal insurance",
+   "cat": "A",
+   "rpp": 116.582,
+   "nominal_ba": 605.0,
+   "nominal_us": 560.0,
+   "real_ba": 518.9480365751145,
+   "real_us": 560.0,
+   "pct": -7.330707754443832
+  },
+  {
+   "group": "Saving",
+   "label": "Everything left over (net saving)",
+   "cat": "A",
+   "rpp": 116.582,
+   "nominal_ba": 17265.152362854904,
+   "nominal_us": 6221.358745346495,
+   "real_ba": 14809.44945433678,
+   "real_us": 6221.358745346495,
+   "pct": 138.04204291247598
+  },
+  {
+   "group": "Food",
+   "label": "Groceries",
+   "cat": "G",
+   "rpp": 111.8415,
+   "nominal_ba": 7534.0,
+   "nominal_us": 6139.0,
+   "real_ba": 6736.318808313551,
+   "real_us": 6166.471631116625,
+   "pct": 9.241057306116861
+  },
+  {
+   "group": "Food",
+   "label": "Restaurants & takeout",
+   "cat": "S",
+   "rpp": 105.8,
+   "nominal_ba": 7143.0,
+   "nominal_us": 3939.0,
+   "real_ba": 6751.417769376182,
+   "real_us": 3932.4524666430384,
+   "pct": 71.68466311150534
+  },
+  {
+   "group": "Food",
+   "label": "Alcohol",
+   "cat": "G",
+   "rpp": 111.8415,
+   "nominal_ba": 955.0,
+   "nominal_us": 640.0,
+   "real_ba": 853.8869739765652,
+   "real_us": 642.8639589370647,
+   "pct": 32.82545429804679
+  },
+  {
+   "group": "Transportation",
+   "label": "Vehicle purchases",
+   "cat": "G",
+   "rpp": 111.8415,
+   "nominal_ba": 7548.0,
+   "nominal_us": 5437.0,
+   "real_ba": 6748.836523115301,
+   "real_us": 5461.330226157532,
+   "pct": 23.57495781506018
+  },
+  {
+   "group": "Transportation",
+   "label": "Gasoline & fuel",
+   "cat": "G",
+   "rpp": 111.8415,
+   "nominal_ba": 2722.0,
+   "nominal_us": 2670.0,
+   "real_ba": 2433.80140645467,
+   "real_us": 2681.948078690567,
+   "pct": -9.252478607156778
+  },
+  {
+   "group": "Transportation",
+   "label": "Car insurance, repairs, finance",
+   "cat": "S",
+   "rpp": 105.8,
+   "nominal_ba": 4727.0,
+   "nominal_us": 4057.0,
+   "real_ba": 4467.863894139887,
+   "real_us": 4050.256323221835,
+   "pct": 10.31064548986025
+  },
+  {
+   "group": "Transportation",
+   "label": "Transit, flights, rideshare",
+   "cat": "S",
+   "rpp": 105.8,
+   "nominal_ba": 2695.0,
+   "nominal_us": 1113.0,
+   "real_ba": 2547.2589792060494,
+   "real_us": 1111.1499353576294,
+   "pct": 129.24529788018222
+  },
+  {
+   "group": "Healthcare",
+   "label": "Healthcare (insurance, care, drugs)",
+   "cat": "S",
+   "rpp": 105.8,
+   "nominal_ba": 6914.0,
+   "nominal_us": 6195.0,
+   "real_ba": 6534.971644612476,
+   "real_us": 6184.7024703868055,
+   "pct": 5.663476552070312
+  },
+  {
+   "group": "Everything else",
+   "label": "Entertainment",
+   "cat": "S",
+   "rpp": 105.8,
+   "nominal_ba": 4600.0,
+   "nominal_us": 3622.0,
+   "real_ba": 4347.826086956522,
+   "real_us": 3615.9793943084755,
+   "pct": 20.239238470218268
+  },
+  {
+   "group": "Everything else",
+   "label": "Education",
+   "cat": "S",
+   "rpp": 105.8,
+   "nominal_ba": 3353.0,
+   "nominal_us": 1552.0,
+   "real_ba": 3169.187145557656,
+   "real_us": 1549.4202153414562,
+   "pct": 104.54019601514241
+  },
+  {
+   "group": "Everything else",
+   "label": "Clothing",
+   "cat": "G",
+   "rpp": 111.8415,
+   "nominal_ba": 3035.0,
+   "nominal_us": 2021.0,
+   "real_ba": 2713.6617445223824,
+   "real_us": 2030.0438453309496,
+   "pct": 33.675031244459916
+  },
+  {
+   "group": "Everything else",
+   "label": "Gifts & donations",
+   "cat": "A",
+   "rpp": 116.582,
+   "nominal_ba": 2219.0,
+   "nominal_us": 2335.0,
+   "real_ba": 1903.3813110085607,
+   "real_us": 2335.0,
+   "pct": -18.484740427898892
+  },
+  {
+   "group": "Everything else",
+   "label": "Personal care",
+   "cat": "S",
+   "rpp": 105.8,
+   "nominal_ba": 1324.0,
+   "nominal_us": 964.0,
+   "real_ba": 1251.4177693761815,
+   "real_us": 962.3976079827086,
+   "pct": 30.031263481555293
+  },
+  {
+   "group": "Everything else",
+   "label": "Miscellaneous, reading, tobacco",
+   "cat": "S",
+   "rpp": 105.8,
+   "nominal_ba": 2226.0,
+   "nominal_us": 1693.0,
+   "real_ba": 2103.969754253308,
+   "real_us": 1690.1858405754417,
+   "pct": 24.48156313609806
+  }
+ ]
+}

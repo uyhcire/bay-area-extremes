@@ -1,0 +1,357 @@
+<title>Bay Area Income Flows</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap">
+<style>
+/* Layout: one reading column — headline claim, three figures, the flow diagram, then the full table and method. */
+:root {
+  --plane: #f9f9f9; --surface: #ffffff; --ink: #191919; --ink2: #666666;
+  --hair: #e7e7e7; --axis: #c2c2c2; --ring: rgba(11,11,11,0.10);
+  --s0: #257de0; --s1: #f47230; --s2: #00b894; --s3: #f2a600; --s4: #ee7fac; --s5: #008a17; --s6: #6a4ce2;
+  --inc: #4a4f57; --rib: 0.30;
+  --display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --plane: #0b0b0b; --surface: #191919; --ink: #efefef; --ink2: #9c9c9c;
+  --hair: #303030; --axis: #474747; --ring: rgba(255,255,255,0.10);
+  --s0: #338ced; --s1: #e76624; --s2: #00a888; --s3: #d28e05; --s4: #e24d8b; --s5: #0aac23; --s6: #9887ef;
+  --inc: #a9afb8; --rib: 0.38; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --plane: #0b0b0b; --surface: #191919; --ink: #efefef; --ink2: #9c9c9c;
+  --hair: #303030; --axis: #474747; --ring: rgba(255,255,255,0.10);
+  --s0: #338ced; --s1: #e76624; --s2: #00a888; --s3: #d28e05; --s4: #e24d8b; --s5: #0aac23; --s6: #9887ef;
+  --inc: #a9afb8; --rib: 0.38; color-scheme: dark }
+
+body { background: var(--plane); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 64px; }
+main { max-width: 1040px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 4vw, 38px); line-height: 1.12;
+  letter-spacing: -0.02em; margin: 0; text-wrap: balance; max-width: 22ch; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 19px; margin: 0 0 10px; }
+.eyebrow { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink2); margin: 0 0 10px; }
+.lede { max-width: 65ch; margin: 12px 0 0; color: var(--ink2); }
+.lede b { color: var(--ink); font-weight: 600; }
+
+.figs { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0; border-block: 1px solid var(--hair); }
+.fig { padding: 16px 20px 16px 0; }
+.fig + .fig { padding-left: 20px; border-left: 1px solid var(--hair); }
+.fig .k { font-size: 12.5px; color: var(--ink2); }
+.fig .v { font-family: var(--display); font-weight: 600; font-size: 28px; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.fig .d { font-size: 13px; color: var(--ink2); font-variant-numeric: tabular-nums; }
+@media (max-width: 660px) { .fig, .fig + .fig { padding: 12px 0; border-left: 0; } .fig + .fig { border-top: 1px solid var(--hair); } }
+
+.card { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 20px; min-width: 0; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--ink2); margin-bottom: 8px; }
+.lg { display: inline-flex; align-items: center; gap: 6px; }
+.sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: baseline; }
+.lg .sw { margin: 0; }
+.scroll { overflow-x: auto; position: relative; }
+.scroll svg { display: block; min-width: 860px; width: 100%; height: auto; }
+.note { font-size: 12.5px; color: var(--ink2); margin: 10px 0 0; max-width: 80ch; }
+
+svg text { font-family: var(--body); fill: var(--ink); font-size: 13px; }
+svg .colhead { font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; fill: var(--ink2); }
+svg .big { font-family: var(--display); font-weight: 600; font-size: 19px; font-variant-numeric: tabular-nums; }
+svg .sub { font-size: 12px; fill: var(--ink2); font-variant-numeric: tabular-nums; }
+svg .sub.strong { fill: var(--ink); font-weight: 600; }
+svg .glabel { font-weight: 600; font-size: 13px; }
+svg .lval { fill: var(--ink2); font-variant-numeric: tabular-nums; }
+svg .lpct { font-weight: 600; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+svg .lpct.neg { font-weight: 500; fill: var(--ink2); }
+svg .node.inc { fill: var(--inc); }
+svg .hit { fill: transparent; cursor: default; }
+svg .rib { fill-opacity: var(--rib); transition: fill-opacity .12s; }
+svg.dim .rib:not(.on) { fill-opacity: 0.10; }
+svg .rib.on { fill-opacity: 0.62; }
+.g0 { fill: var(--s0); background: var(--s0); } .g1 { fill: var(--s1); background: var(--s1); }
+.g2 { fill: var(--s2); background: var(--s2); } .g3 { fill: var(--s3); background: var(--s3); }
+.g4 { fill: var(--s4); background: var(--s4); } .g5 { fill: var(--s5); background: var(--s5); }
+.g6 { fill: var(--s6); background: var(--s6); }
+@media (prefers-reduced-motion: reduce) { svg .rib { transition: none; } }
+
+#tip { position: fixed; z-index: 20; pointer-events: none; background: var(--surface); color: var(--ink);
+  border: 1px solid var(--ring); border-radius: 8px; box-shadow: 0 6px 24px rgba(0,0,0,.16); padding: 10px 12px;
+  font-size: 12.5px; max-width: 280px; line-height: 1.45; }
+#tip .tt { font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 2px; }
+#tip .row { display: flex; justify-content: space-between; gap: 18px; font-variant-numeric: tabular-nums; }
+#tip .row span:first-child { color: var(--ink2); }
+#tip .ts { color: var(--ink2); margin-top: 4px; }
+
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+th { text-align: left; font-weight: 500; color: var(--ink2); font-size: 12px; vertical-align: bottom; padding: 6px 10px; border-bottom: 1px solid var(--axis); }
+td { padding: 6px 10px; border-bottom: 1px solid var(--hair); }
+.n { text-align: right; white-space: nowrap; }
+td.ind { padding-left: 28px; }
+tr.grow td { font-weight: 600; }
+tr.tot td { border-top: 1px solid var(--axis); border-bottom: 0; }
+.dim { color: var(--ink2); font-size: 12px; }
+.method { max-width: 70ch; }
+.method p, .method li { color: var(--ink2); margin: 0 0 10px; }
+.method ul { padding-left: 18px; margin: 0; }
+.method b { color: var(--ink); font-weight: 600; }
+a { color: inherit; }
+</style>
+
+<main>
+  <header>
+    <p class="eyebrow">San Francisco–Oakland metro · 2023–24 average · per household</p>
+    <h1>Where a Bay Area income goes, in real dollars</h1>
+    <p class="lede">The average Bay Area household takes in <b>$184,755</b> a year, +79% against the U.S. average.
+      Local prices run 117 against a national 100, and housing runs 197. Dividing each use of income by its
+      own local price level leaves <b>$150,956</b> of national-price purchasing power, <b>+47%</b> against the U.S.
+      The percentage beside each branch is how much more of that thing, in real terms, a Bay Area household gets than the average American one.</p>
+  </header>
+
+  <section class="figs" aria-label="Headline figures">
+    <div class="fig"><div class="k">Nominal income</div><div class="v">$184,755</div><div class="d">U.S. $103,012 · +79%</div></div>
+    <div class="fig"><div class="k">Real income, at national prices</div><div class="v">$150,956</div><div class="d">U.S. $103,035 · +47%</div></div>
+    <div class="fig"><div class="k">Bay Area price level, U.S. = 100</div><div class="v">117</div><div class="d">housing 197 · utilities 167 · goods 112 · other services 106</div></div>
+  </section>
+
+  <section class="card">
+    <div class="legend" aria-hidden="true"><span class="lg"><span class="sw g0"></span>Housing</span><span class="lg"><span class="sw g1"></span>Taxes</span><span class="lg"><span class="sw g2"></span>Saving</span><span class="lg"><span class="sw g3"></span>Food</span><span class="lg"><span class="sw g4"></span>Transportation</span><span class="lg"><span class="sw g5"></span>Healthcare</span><span class="lg"><span class="sw g6"></span>Everything else</span></div>
+    <div class="scroll" id="chart">
+<svg viewBox="0 0 1000 929" width="1000" height="929" role="img" aria-label="Sankey diagram of Bay Area household income by use, in real dollars">
+<text class="colhead" x="110" y="14" text-anchor="end">Income</text>
+<text class="colhead" x="340" y="14">Where it goes</text>
+<text class="colhead" x="594" y="14">Real $ per household</text>
+<text class="colhead" x="996" y="14" text-anchor="end">vs. U.S. average</text>
+<path class="rib g0" data-tip="g0" d="M110.0,172.5 C225.0,172.5 225.0,124.5 340.0,124.5 L340.0,224.9 C225.0,224.9 225.0,272.9 110.0,272.9 Z"/>
+<path class="rib g1" data-tip="g1" d="M110.0,272.9 C225.0,272.9 225.0,240.9 340.0,240.9 L340.0,411.1 C225.0,411.1 225.0,443.1 110.0,443.1 Z"/>
+<path class="rib g2" data-tip="g2" d="M110.0,443.1 C225.0,443.1 225.0,427.1 340.0,427.1 L340.0,547.6 C225.0,547.6 225.0,563.6 110.0,563.6 Z"/>
+<path class="rib g3" data-tip="g3" d="M110.0,563.6 C225.0,563.6 225.0,563.6 340.0,563.6 L340.0,620.6 C225.0,620.6 225.0,620.6 110.0,620.6 Z"/>
+<path class="rib g4" data-tip="g4" d="M110.0,620.6 C225.0,620.6 225.0,636.6 340.0,636.6 L340.0,701.0 C225.0,701.0 225.0,685.0 110.0,685.0 Z"/>
+<path class="rib g5" data-tip="g5" d="M110.0,685.0 C225.0,685.0 225.0,717.0 340.0,717.0 L340.0,742.9 C225.0,742.9 225.0,710.9 110.0,710.9 Z"/>
+<path class="rib g6" data-tip="g6" d="M110.0,710.9 C225.0,710.9 225.0,758.9 340.0,758.9 L340.0,820.5 C225.0,820.5 225.0,772.5 110.0,772.5 Z"/>
+<path class="rib g0" data-tip="l0" d="M354.0,124.5 C462.0,124.5 462.0,30.0 570.0,30.0 L570.0,90.0 C462.0,90.0 462.0,184.5 354.0,184.5 Z"/>
+<path class="rib g0" data-tip="l1" d="M354.0,184.5 C462.0,184.5 462.0,99.0 570.0,99.0 L570.0,110.1 C462.0,110.1 462.0,195.6 354.0,195.6 Z"/>
+<path class="rib g0" data-tip="l2" d="M354.0,195.6 C462.0,195.6 462.0,121.2 570.0,121.2 L570.0,135.9 C462.0,135.9 462.0,210.3 354.0,210.3 Z"/>
+<path class="rib g0" data-tip="l3" d="M354.0,210.3 C462.0,210.3 462.0,145.2 570.0,145.2 L570.0,159.8 C462.0,159.8 462.0,224.9 354.0,224.9 Z"/>
+<path class="rib g1" data-tip="l4" d="M354.0,240.9 C462.0,240.9 462.0,176.0 570.0,176.0 L570.0,302.3 C462.0,302.3 462.0,367.3 354.0,367.3 Z"/>
+<path class="rib g1" data-tip="l5" d="M354.0,367.3 C462.0,367.3 462.0,307.3 570.0,307.3 L570.0,351.2 C462.0,351.2 462.0,411.1 354.0,411.1 Z"/>
+<path class="rib g2" data-tip="l6" d="M354.0,427.1 C462.0,427.1 462.0,365.2 570.0,365.2 L570.0,424.7 C462.0,424.7 462.0,486.6 354.0,486.6 Z"/>
+<path class="rib g2" data-tip="l7" d="M354.0,486.6 C462.0,486.6 462.0,438.2 570.0,438.2 L570.0,440.2 C462.0,440.2 462.0,488.7 354.0,488.7 Z"/>
+<path class="rib g2" data-tip="l8" d="M354.0,488.7 C462.0,488.7 462.0,453.7 570.0,453.7 L570.0,512.6 C462.0,512.6 462.0,547.6 354.0,547.6 Z"/>
+<path class="rib g3" data-tip="l9" d="M354.0,563.6 C462.0,563.6 462.0,526.6 570.0,526.6 L570.0,553.3 C462.0,553.3 462.0,590.3 354.0,590.3 Z"/>
+<path class="rib g3" data-tip="l10" d="M354.0,590.3 C462.0,590.3 462.0,558.3 570.0,558.3 L570.0,585.2 C462.0,585.2 462.0,617.2 354.0,617.2 Z"/>
+<path class="rib g3" data-tip="l11" d="M354.0,617.2 C462.0,617.2 462.0,598.0 570.0,598.0 L570.0,601.4 C462.0,601.4 462.0,620.6 354.0,620.6 Z"/>
+<path class="rib g4" data-tip="l12" d="M354.0,636.6 C462.0,636.6 462.0,623.2 570.0,623.2 L570.0,650.0 C462.0,650.0 462.0,663.4 354.0,663.4 Z"/>
+<path class="rib g4" data-tip="l13" d="M354.0,663.4 C462.0,663.4 462.0,659.7 570.0,659.7 L570.0,669.3 C462.0,669.3 462.0,673.1 354.0,673.1 Z"/>
+<path class="rib g4" data-tip="l14" d="M354.0,673.1 C462.0,673.1 462.0,679.6 570.0,679.6 L570.0,697.4 C462.0,697.4 462.0,690.8 354.0,690.8 Z"/>
+<path class="rib g4" data-tip="l15" d="M354.0,690.8 C462.0,690.8 462.0,707.4 570.0,707.4 L570.0,717.6 C462.0,717.6 462.0,701.0 354.0,701.0 Z"/>
+<path class="rib g5" data-tip="l16" d="M354.0,717.0 C462.0,717.0 462.0,736.0 570.0,736.0 L570.0,762.0 C462.0,762.0 462.0,742.9 354.0,742.9 Z"/>
+<path class="rib g6" data-tip="l17" d="M354.0,758.9 C462.0,758.9 462.0,776.8 570.0,776.8 L570.0,794.1 C462.0,794.1 462.0,776.2 354.0,776.2 Z"/>
+<path class="rib g6" data-tip="l18" d="M354.0,776.2 C462.0,776.2 462.0,803.2 570.0,803.2 L570.0,815.8 C462.0,815.8 462.0,788.8 354.0,788.8 Z"/>
+<path class="rib g6" data-tip="l19" d="M354.0,788.8 C462.0,788.8 462.0,828.1 570.0,828.1 L570.0,838.9 C462.0,838.9 462.0,799.6 354.0,799.6 Z"/>
+<path class="rib g6" data-tip="l20" d="M354.0,799.6 C462.0,799.6 462.0,853.7 570.0,853.7 L570.0,861.3 C462.0,861.3 462.0,807.2 354.0,807.2 Z"/>
+<path class="rib g6" data-tip="l21" d="M354.0,807.2 C462.0,807.2 462.0,879.0 570.0,879.0 L570.0,884.0 C462.0,884.0 462.0,812.1 354.0,812.1 Z"/>
+<path class="rib g6" data-tip="l22" d="M354.0,812.1 C462.0,812.1 462.0,901.3 570.0,901.3 L570.0,909.7 C462.0,909.7 462.0,820.5 354.0,820.5 Z"/>
+<rect class="node inc" x="96" y="172.5" width="14" height="600" rx="2"/>
+<text class="big" x="86" y="464" text-anchor="end">$150,956</text>
+<text class="sub" x="86" y="482" text-anchor="end">real income</text>
+<text class="sub strong" x="86" y="500" text-anchor="end">+47% vs U.S.</text>
+<rect class="node g0" data-tip="g0" x="340" y="124.5" width="14" height="100.5" rx="2"/>
+<text class="glabel" x="332" y="171.7" text-anchor="end">Housing</text>
+<text class="sub" x="332" y="186.7" text-anchor="end">$25,275</text>
+<rect class="node g1" data-tip="g1" x="340" y="240.9" width="14" height="170.2" rx="2"/>
+<text class="glabel" x="332" y="323.0" text-anchor="end">Taxes</text>
+<text class="sub" x="332" y="338.0" text-anchor="end">$42,810</text>
+<rect class="node g2" data-tip="g2" x="340" y="427.1" width="14" height="120.5" rx="2"/>
+<text class="glabel" x="332" y="484.3" text-anchor="end">Saving</text>
+<text class="sub" x="332" y="499.3" text-anchor="end">$30,308</text>
+<rect class="node g3" data-tip="g3" x="340" y="563.6" width="14" height="57.0" rx="2"/>
+<text class="glabel" x="332" y="589.1" text-anchor="end">Food</text>
+<text class="sub" x="332" y="604.1" text-anchor="end">$14,342</text>
+<rect class="node g4" data-tip="g4" x="340" y="636.6" width="14" height="64.4" rx="2"/>
+<text class="glabel" x="332" y="665.8" text-anchor="end">Transportation</text>
+<text class="sub" x="332" y="680.8" text-anchor="end">$16,198</text>
+<rect class="node g5" data-tip="g5" x="340" y="717.0" width="14" height="26.0" rx="2"/>
+<text class="glabel" x="332" y="733.9" text-anchor="end">Healthcare</text>
+<rect class="node g6" data-tip="g6" x="340" y="758.9" width="14" height="61.6" rx="2"/>
+<text class="glabel" x="332" y="786.7" text-anchor="end">Everything else</text>
+<text class="sub" x="332" y="801.7" text-anchor="end">$15,489</text>
+<rect class="node g0" data-tip="l0" x="570" y="30.0" width="14" height="60.0" rx="1.5"/>
+<text class="llabel" x="594" y="64.5">Rent, mortgage interest, property tax<tspan class="lval" dx="8">$15,100</tspan></text>
+<text class="lpct neg" x="996" y="64.5" text-anchor="end">−5%</text>
+<rect class="hit" data-tip="l0" x="570" y="30.0" width="430" height="60.0"/>
+<rect class="node g0" data-tip="l1" x="570" y="99.0" width="14" height="11.1" rx="1.5"/>
+<text class="llabel" x="594" y="109.0">Utilities, fuels, phone &amp; internet<tspan class="lval" dx="8">$2,794</tspan></text>
+<text class="lpct neg" x="996" y="109.0" text-anchor="end">−41%</text>
+<rect class="hit" data-tip="l1" x="570" y="95.0" width="430" height="19.0"/>
+<rect class="node g0" data-tip="l2" x="570" y="121.2" width="14" height="14.7" rx="1.5"/>
+<text class="llabel" x="594" y="133.0">Household services (childcare, cleaning…)<tspan class="lval" dx="8">$3,704</tspan></text>
+<text class="lpct" x="996" y="133.0" text-anchor="end">+90%</text>
+<rect class="hit" data-tip="l2" x="570" y="119.0" width="430" height="19.0"/>
+<rect class="node g0" data-tip="l3" x="570" y="145.2" width="14" height="14.6" rx="1.5"/>
+<text class="llabel" x="594" y="157.0">Furnishings &amp; household supplies<tspan class="lval" dx="8">$3,677</tspan></text>
+<text class="lpct" x="996" y="157.0" text-anchor="end">+11%</text>
+<rect class="hit" data-tip="l3" x="570" y="143.0" width="430" height="19.0"/>
+<rect class="node g1" data-tip="l4" x="570" y="176.0" width="14" height="126.3" rx="1.5"/>
+<text class="llabel" x="594" y="243.7">Federal income &amp; self-employment tax<tspan class="lval" dx="8">$31,782</tspan></text>
+<text class="lpct" x="996" y="243.7" text-anchor="end">+108%</text>
+<rect class="hit" data-tip="l4" x="570" y="176.0" width="430" height="126.3"/>
+<rect class="node g1" data-tip="l5" x="570" y="307.3" width="14" height="43.8" rx="1.5"/>
+<text class="llabel" x="594" y="333.8">State &amp; local income tax, vehicle fees<tspan class="lval" dx="8">$11,029</tspan></text>
+<text class="lpct" x="996" y="333.8" text-anchor="end">+207%</text>
+<rect class="hit" data-tip="l5" x="570" y="307.3" width="430" height="43.8"/>
+<rect class="node g2" data-tip="l6" x="570" y="365.2" width="14" height="59.5" rx="1.5"/>
+<text class="llabel" x="594" y="399.4">Retirement &amp; Social Security contributions<tspan class="lval" dx="8">$14,979</tspan></text>
+<text class="lpct" x="996" y="399.4" text-anchor="end">+64%</text>
+<rect class="hit" data-tip="l6" x="570" y="365.2" width="430" height="59.5"/>
+<rect class="node g2" data-tip="l7" x="570" y="438.2" width="14" height="2.1" rx="1.5"/>
+<text class="llabel" x="594" y="443.7">Life &amp; other personal insurance<tspan class="lval" dx="8">$519</tspan></text>
+<text class="lpct neg" x="996" y="443.7" text-anchor="end">−7%</text>
+<rect class="hit" data-tip="l7" x="570" y="429.7" width="430" height="19.0"/>
+<rect class="node g2" data-tip="l8" x="570" y="453.7" width="14" height="58.9" rx="1.5"/>
+<text class="llabel" x="594" y="487.6">Everything left over (net saving)<tspan class="lval" dx="8">$14,809</tspan></text>
+<text class="lpct" x="996" y="487.6" text-anchor="end">+138%</text>
+<rect class="hit" data-tip="l8" x="570" y="453.7" width="430" height="58.9"/>
+<rect class="node g3" data-tip="l9" x="570" y="526.6" width="14" height="26.8" rx="1.5"/>
+<text class="llabel" x="594" y="544.5">Groceries<tspan class="lval" dx="8">$6,736</tspan></text>
+<text class="lpct" x="996" y="544.5" text-anchor="end">+9%</text>
+<rect class="hit" data-tip="l9" x="570" y="526.6" width="430" height="26.8"/>
+<rect class="node g3" data-tip="l10" x="570" y="558.3" width="14" height="26.8" rx="1.5"/>
+<text class="llabel" x="594" y="576.3">Restaurants &amp; takeout<tspan class="lval" dx="8">$6,751</tspan></text>
+<text class="lpct" x="996" y="576.3" text-anchor="end">+72%</text>
+<rect class="hit" data-tip="l10" x="570" y="558.3" width="430" height="26.8"/>
+<rect class="node g3" data-tip="l11" x="570" y="598.0" width="14" height="3.4" rx="1.5"/>
+<text class="llabel" x="594" y="604.2">Alcohol<tspan class="lval" dx="8">$854</tspan></text>
+<text class="lpct" x="996" y="604.2" text-anchor="end">+33%</text>
+<rect class="hit" data-tip="l11" x="570" y="590.2" width="430" height="19.0"/>
+<rect class="node g4" data-tip="l12" x="570" y="623.2" width="14" height="26.8" rx="1.5"/>
+<text class="llabel" x="594" y="641.1">Vehicle purchases<tspan class="lval" dx="8">$6,749</tspan></text>
+<text class="lpct" x="996" y="641.1" text-anchor="end">+24%</text>
+<rect class="hit" data-tip="l12" x="570" y="623.2" width="430" height="26.8"/>
+<rect class="node g4" data-tip="l13" x="570" y="659.7" width="14" height="9.7" rx="1.5"/>
+<text class="llabel" x="594" y="669.0">Gasoline &amp; fuel<tspan class="lval" dx="8">$2,434</tspan></text>
+<text class="lpct neg" x="996" y="669.0" text-anchor="end">−9%</text>
+<rect class="hit" data-tip="l13" x="570" y="655.0" width="430" height="19.0"/>
+<rect class="node g4" data-tip="l14" x="570" y="679.6" width="14" height="17.8" rx="1.5"/>
+<text class="llabel" x="594" y="693.0">Car insurance, repairs, finance<tspan class="lval" dx="8">$4,468</tspan></text>
+<text class="lpct" x="996" y="693.0" text-anchor="end">+10%</text>
+<rect class="hit" data-tip="l14" x="570" y="679.0" width="430" height="19.0"/>
+<rect class="node g4" data-tip="l15" x="570" y="707.4" width="14" height="10.1" rx="1.5"/>
+<text class="llabel" x="594" y="717.0">Transit, flights, rideshare<tspan class="lval" dx="8">$2,547</tspan></text>
+<text class="lpct" x="996" y="717.0" text-anchor="end">+129%</text>
+<rect class="hit" data-tip="l15" x="570" y="703.0" width="430" height="19.0"/>
+<rect class="node g5" data-tip="l16" x="570" y="736.0" width="14" height="26.0" rx="1.5"/>
+<text class="llabel" x="594" y="753.5">Healthcare (insurance, care, drugs)<tspan class="lval" dx="8">$6,535</tspan></text>
+<text class="lpct" x="996" y="753.5" text-anchor="end">+6%</text>
+<rect class="hit" data-tip="l16" x="570" y="736.0" width="430" height="26.0"/>
+<rect class="node g6" data-tip="l17" x="570" y="776.8" width="14" height="17.3" rx="1.5"/>
+<text class="llabel" x="594" y="790.0">Entertainment<tspan class="lval" dx="8">$4,348</tspan></text>
+<text class="lpct" x="996" y="790.0" text-anchor="end">+20%</text>
+<rect class="hit" data-tip="l17" x="570" y="776.0" width="430" height="19.0"/>
+<rect class="node g6" data-tip="l18" x="570" y="803.2" width="14" height="12.6" rx="1.5"/>
+<text class="llabel" x="594" y="814.0">Education<tspan class="lval" dx="8">$3,169</tspan></text>
+<text class="lpct" x="996" y="814.0" text-anchor="end">+105%</text>
+<rect class="hit" data-tip="l18" x="570" y="800.0" width="430" height="19.0"/>
+<rect class="node g6" data-tip="l19" x="570" y="828.1" width="14" height="10.8" rx="1.5"/>
+<text class="llabel" x="594" y="838.0">Clothing<tspan class="lval" dx="8">$2,714</tspan></text>
+<text class="lpct" x="996" y="838.0" text-anchor="end">+34%</text>
+<rect class="hit" data-tip="l19" x="570" y="824.0" width="430" height="19.0"/>
+<rect class="node g6" data-tip="l20" x="570" y="853.7" width="14" height="7.6" rx="1.5"/>
+<text class="llabel" x="594" y="862.0">Gifts &amp; donations<tspan class="lval" dx="8">$1,903</tspan></text>
+<text class="lpct neg" x="996" y="862.0" text-anchor="end">−18%</text>
+<rect class="hit" data-tip="l20" x="570" y="848.0" width="430" height="19.0"/>
+<rect class="node g6" data-tip="l21" x="570" y="879.0" width="14" height="5.0" rx="1.5"/>
+<text class="llabel" x="594" y="886.0">Personal care<tspan class="lval" dx="8">$1,251</tspan></text>
+<text class="lpct" x="996" y="886.0" text-anchor="end">+30%</text>
+<rect class="hit" data-tip="l21" x="570" y="872.0" width="430" height="19.0"/>
+<rect class="node g6" data-tip="l22" x="570" y="901.3" width="14" height="8.4" rx="1.5"/>
+<text class="llabel" x="594" y="910.0">Miscellaneous, reading, tobacco<tspan class="lval" dx="8">$2,104</tspan></text>
+<text class="lpct" x="996" y="910.0" text-anchor="end">+24%</text>
+<rect class="hit" data-tip="l22" x="570" y="896.0" width="430" height="19.0"/>
+</svg>
+    </div>
+    <p class="note">Band widths are real dollars per household per year: nominal Bay Area dollars divided by the local price level for that kind of spending. Small branches are drawn at true width but spaced apart so the labels stay readable.</p>
+  </section>
+
+  <section class="card">
+    <h2>The numbers behind the diagram</h2>
+    <div class="tablewrap">
+<table><thead><tr><th>Use of income</th><th class="n">Bay Area, nominal</th><th class="n">Price level<br>(U.S. = 100)</th><th class="n">Bay Area, real</th><th class="n">U.S., real</th><th class="n">Bay Area vs U.S.</th></tr></thead><tbody>
+<tr class="grow"><td><span class="sw g0"></span>Housing</td><td class="n">$42,518</td><td class="n"></td><td class="n">$25,275</td><td class="n">$25,839</td><td class="n">−2%</td></tr>
+<tr><td class="ind">Rent, mortgage interest, property tax</td><td class="n">$29,810</td><td class="n">197 <span class="dim">housing</span></td><td class="n">$15,100</td><td class="n">$15,815</td><td class="n">−5%</td></tr>
+<tr><td class="ind">Utilities, fuels, phone &amp; internet</td><td class="n">$4,677</td><td class="n">167 <span class="dim">utilities</span></td><td class="n">$2,794</td><td class="n">$4,750</td><td class="n">−41%</td></tr>
+<tr><td class="ind">Household services (childcare, cleaning…)</td><td class="n">$3,919</td><td class="n">106 <span class="dim">other services</span></td><td class="n">$3,704</td><td class="n">$1,950</td><td class="n">+90%</td></tr>
+<tr><td class="ind">Furnishings &amp; household supplies</td><td class="n">$4,112</td><td class="n">112 <span class="dim">goods</span></td><td class="n">$3,677</td><td class="n">$3,324</td><td class="n">+11%</td></tr>
+<tr class="grow"><td><span class="sw g1"></span>Taxes</td><td class="n">$49,909</td><td class="n"></td><td class="n">$42,810</td><td class="n">$18,884</td><td class="n">+127%</td></tr>
+<tr><td class="ind">Federal income &amp; self-employment tax</td><td class="n">$37,052</td><td class="n">117 <span class="dim">all items</span></td><td class="n">$31,782</td><td class="n">$15,295</td><td class="n">+108%</td></tr>
+<tr><td class="ind">State &amp; local income tax, vehicle fees</td><td class="n">$12,857</td><td class="n">117 <span class="dim">all items</span></td><td class="n">$11,029</td><td class="n">$3,589</td><td class="n">+207%</td></tr>
+<tr class="grow"><td><span class="sw g2"></span>Saving</td><td class="n">$35,333</td><td class="n"></td><td class="n">$30,308</td><td class="n">$15,898</td><td class="n">+91%</td></tr>
+<tr><td class="ind">Retirement &amp; Social Security contributions</td><td class="n">$17,463</td><td class="n">117 <span class="dim">all items</span></td><td class="n">$14,979</td><td class="n">$9,117</td><td class="n">+64%</td></tr>
+<tr><td class="ind">Life &amp; other personal insurance</td><td class="n">$605</td><td class="n">117 <span class="dim">all items</span></td><td class="n">$519</td><td class="n">$560</td><td class="n">−7%</td></tr>
+<tr><td class="ind">Everything left over (net saving)</td><td class="n">$17,265</td><td class="n">117 <span class="dim">all items</span></td><td class="n">$14,809</td><td class="n">$6,221</td><td class="n">+138%</td></tr>
+<tr class="grow"><td><span class="sw g3"></span>Food</td><td class="n">$15,632</td><td class="n"></td><td class="n">$14,342</td><td class="n">$10,742</td><td class="n">+34%</td></tr>
+<tr><td class="ind">Groceries</td><td class="n">$7,534</td><td class="n">112 <span class="dim">goods</span></td><td class="n">$6,736</td><td class="n">$6,166</td><td class="n">+9%</td></tr>
+<tr><td class="ind">Restaurants &amp; takeout</td><td class="n">$7,143</td><td class="n">106 <span class="dim">other services</span></td><td class="n">$6,751</td><td class="n">$3,932</td><td class="n">+72%</td></tr>
+<tr><td class="ind">Alcohol</td><td class="n">$955</td><td class="n">112 <span class="dim">goods</span></td><td class="n">$854</td><td class="n">$643</td><td class="n">+33%</td></tr>
+<tr class="grow"><td><span class="sw g4"></span>Transportation</td><td class="n">$17,692</td><td class="n"></td><td class="n">$16,198</td><td class="n">$13,305</td><td class="n">+22%</td></tr>
+<tr><td class="ind">Vehicle purchases</td><td class="n">$7,548</td><td class="n">112 <span class="dim">goods</span></td><td class="n">$6,749</td><td class="n">$5,461</td><td class="n">+24%</td></tr>
+<tr><td class="ind">Gasoline &amp; fuel</td><td class="n">$2,722</td><td class="n">112 <span class="dim">goods</span></td><td class="n">$2,434</td><td class="n">$2,682</td><td class="n">−9%</td></tr>
+<tr><td class="ind">Car insurance, repairs, finance</td><td class="n">$4,727</td><td class="n">106 <span class="dim">other services</span></td><td class="n">$4,468</td><td class="n">$4,050</td><td class="n">+10%</td></tr>
+<tr><td class="ind">Transit, flights, rideshare</td><td class="n">$2,695</td><td class="n">106 <span class="dim">other services</span></td><td class="n">$2,547</td><td class="n">$1,111</td><td class="n">+129%</td></tr>
+<tr class="grow"><td><span class="sw g5"></span>Healthcare</td><td class="n">$6,914</td><td class="n"></td><td class="n">$6,535</td><td class="n">$6,185</td><td class="n">+6%</td></tr>
+<tr><td class="ind">Healthcare (insurance, care, drugs)</td><td class="n">$6,914</td><td class="n">106 <span class="dim">other services</span></td><td class="n">$6,535</td><td class="n">$6,185</td><td class="n">+6%</td></tr>
+<tr class="grow"><td><span class="sw g6"></span>Everything else</td><td class="n">$16,757</td><td class="n"></td><td class="n">$15,489</td><td class="n">$12,183</td><td class="n">+27%</td></tr>
+<tr><td class="ind">Entertainment</td><td class="n">$4,600</td><td class="n">106 <span class="dim">other services</span></td><td class="n">$4,348</td><td class="n">$3,616</td><td class="n">+20%</td></tr>
+<tr><td class="ind">Education</td><td class="n">$3,353</td><td class="n">106 <span class="dim">other services</span></td><td class="n">$3,169</td><td class="n">$1,549</td><td class="n">+105%</td></tr>
+<tr><td class="ind">Clothing</td><td class="n">$3,035</td><td class="n">112 <span class="dim">goods</span></td><td class="n">$2,714</td><td class="n">$2,030</td><td class="n">+34%</td></tr>
+<tr><td class="ind">Gifts &amp; donations</td><td class="n">$2,219</td><td class="n">117 <span class="dim">all items</span></td><td class="n">$1,903</td><td class="n">$2,335</td><td class="n">−18%</td></tr>
+<tr><td class="ind">Personal care</td><td class="n">$1,324</td><td class="n">106 <span class="dim">other services</span></td><td class="n">$1,251</td><td class="n">$962</td><td class="n">+30%</td></tr>
+<tr><td class="ind">Miscellaneous, reading, tobacco</td><td class="n">$2,226</td><td class="n">106 <span class="dim">other services</span></td><td class="n">$2,104</td><td class="n">$1,690</td><td class="n">+24%</td></tr>
+<tr class="grow tot"><td>Total income</td><td class="n">$184,755</td><td class="n"></td><td class="n">$150,956</td><td class="n">$103,035</td><td class="n">+47%</td></tr></tbody></table>
+    </div>
+  </section>
+
+  <section class="method">
+    <h2>How this was built</h2>
+    <ul>
+      <li><b>Income and its uses</b> come from the BLS Consumer Expenditure Survey, 2023–24 two-year average, for the San Francisco–Oakland–Hayward metro (San Francisco, San Mateo, Alameda, Contra Costa and Marin counties; San Jose is a separate metro the survey does not publish) and for all U.S. consumer units. A consumer unit is roughly a household.</li>
+      <li><b>Real dollars</b> divide each line by the matching BEA regional price parity for the San Francisco–Oakland–Fremont metro, averaged over the same two years: housing for shelter, utilities for utilities, goods for groceries, vehicles, fuel, clothing and furnishings, other services for the rest of consumption, and all items for taxes, saving and giving. U.S. lines are divided by the U.S. parities, which sit within about 1.5 points of 100.</li>
+      <li><b>Taxes</b> are estimated, because BLS stopped publishing the survey's tax figures in 2024. Federal tax is survey income times the effective rate in IRS county data (total tax liability over adjusted gross income, tax year 2023): 20.1% for the metro's five counties, 14.8% nationally. State and local tax is federal tax times the ratio of state-and-local to federal personal taxes in BEA's accounts: 0.35 for California, 0.23 nationally. Property tax sits in shelter, and Social Security payroll tax sits with retirement contributions, where the survey puts them.</li>
+      <li><b>Net saving</b> is what remains of income after taxes and every expenditure line, so it includes mortgage principal and absorbs the errors in the survey's income, its spending and the tax estimate. Treat it as the least precise branch.</li>
+      <li>Shelter for owners counts mortgage interest, property tax, insurance and upkeep, not the purchase price of the home. Deflating it by the rent-based housing parity is the standard approximation.</li>
+      <li>Real income here is the sum of the deflated branches, so it differs slightly from nominal income divided by the all-items parity.</li>
+    </ul>
+  </section>
+</main>
+<div id="tip" hidden></div>
+
+<script>
+(function () {
+  var TIPS = {"g0": {"t": "Housing", "gi": 0, "a": "$25,275", "b": "$25,839", "p": "−2%", "s": "17% of real income"}, "g1": {"t": "Taxes", "gi": 1, "a": "$42,810", "b": "$18,884", "p": "+127%", "s": "28% of real income"}, "g2": {"t": "Saving", "gi": 2, "a": "$30,308", "b": "$15,898", "p": "+91%", "s": "20% of real income"}, "g3": {"t": "Food", "gi": 3, "a": "$14,342", "b": "$10,742", "p": "+34%", "s": "10% of real income"}, "g4": {"t": "Transportation", "gi": 4, "a": "$16,198", "b": "$13,305", "p": "+22%", "s": "11% of real income"}, "g5": {"t": "Healthcare", "gi": 5, "a": "$6,535", "b": "$6,185", "p": "+6%", "s": "4% of real income"}, "g6": {"t": "Everything else", "gi": 6, "a": "$15,489", "b": "$12,183", "p": "+27%", "s": "10% of real income"}, "l0": {"t": "Rent, mortgage interest, property tax", "gi": 0, "a": "$15,100", "b": "$15,815", "p": "−5%", "s": "$29,810 nominal ÷ 197 (housing prices)"}, "l1": {"t": "Utilities, fuels, phone & internet", "gi": 0, "a": "$2,794", "b": "$4,750", "p": "−41%", "s": "$4,677 nominal ÷ 167 (utilities prices)"}, "l2": {"t": "Household services (childcare, cleaning…)", "gi": 0, "a": "$3,704", "b": "$1,950", "p": "+90%", "s": "$3,919 nominal ÷ 106 (other services prices)"}, "l3": {"t": "Furnishings & household supplies", "gi": 0, "a": "$3,677", "b": "$3,324", "p": "+11%", "s": "$4,112 nominal ÷ 112 (goods prices)"}, "l4": {"t": "Federal income & self-employment tax", "gi": 1, "a": "$31,782", "b": "$15,295", "p": "+108%", "s": "$37,052 nominal ÷ 117 (all items prices)"}, "l5": {"t": "State & local income tax, vehicle fees", "gi": 1, "a": "$11,029", "b": "$3,589", "p": "+207%", "s": "$12,857 nominal ÷ 117 (all items prices)"}, "l6": {"t": "Retirement & Social Security contributions", "gi": 2, "a": "$14,979", "b": "$9,117", "p": "+64%", "s": "$17,463 nominal ÷ 117 (all items prices)"}, "l7": {"t": "Life & other personal insurance", "gi": 2, "a": "$519", "b": "$560", "p": "−7%", "s": "$605 nominal ÷ 117 (all items prices)"}, "l8": {"t": "Everything left over (net saving)", "gi": 2, "a": "$14,809", "b": "$6,221", "p": "+138%", "s": "$17,265 nominal ÷ 117 (all items prices)"}, "l9": {"t": "Groceries", "gi": 3, "a": "$6,736", "b": "$6,166", "p": "+9%", "s": "$7,534 nominal ÷ 112 (goods prices)"}, "l10": {"t": "Restaurants & takeout", "gi": 3, "a": "$6,751", "b": "$3,932", "p": "+72%", "s": "$7,143 nominal ÷ 106 (other services prices)"}, "l11": {"t": "Alcohol", "gi": 3, "a": "$854", "b": "$643", "p": "+33%", "s": "$955 nominal ÷ 112 (goods prices)"}, "l12": {"t": "Vehicle purchases", "gi": 4, "a": "$6,749", "b": "$5,461", "p": "+24%", "s": "$7,548 nominal ÷ 112 (goods prices)"}, "l13": {"t": "Gasoline & fuel", "gi": 4, "a": "$2,434", "b": "$2,682", "p": "−9%", "s": "$2,722 nominal ÷ 112 (goods prices)"}, "l14": {"t": "Car insurance, repairs, finance", "gi": 4, "a": "$4,468", "b": "$4,050", "p": "+10%", "s": "$4,727 nominal ÷ 106 (other services prices)"}, "l15": {"t": "Transit, flights, rideshare", "gi": 4, "a": "$2,547", "b": "$1,111", "p": "+129%", "s": "$2,695 nominal ÷ 106 (other services prices)"}, "l16": {"t": "Healthcare (insurance, care, drugs)", "gi": 5, "a": "$6,535", "b": "$6,185", "p": "+6%", "s": "$6,914 nominal ÷ 106 (other services prices)"}, "l17": {"t": "Entertainment", "gi": 6, "a": "$4,348", "b": "$3,616", "p": "+20%", "s": "$4,600 nominal ÷ 106 (other services prices)"}, "l18": {"t": "Education", "gi": 6, "a": "$3,169", "b": "$1,549", "p": "+105%", "s": "$3,353 nominal ÷ 106 (other services prices)"}, "l19": {"t": "Clothing", "gi": 6, "a": "$2,714", "b": "$2,030", "p": "+34%", "s": "$3,035 nominal ÷ 112 (goods prices)"}, "l20": {"t": "Gifts & donations", "gi": 6, "a": "$1,903", "b": "$2,335", "p": "−18%", "s": "$2,219 nominal ÷ 117 (all items prices)"}, "l21": {"t": "Personal care", "gi": 6, "a": "$1,251", "b": "$962", "p": "+30%", "s": "$1,324 nominal ÷ 106 (other services prices)"}, "l22": {"t": "Miscellaneous, reading, tobacco", "gi": 6, "a": "$2,104", "b": "$1,690", "p": "+24%", "s": "$2,226 nominal ÷ 106 (other services prices)"}};
+  var svg = document.querySelector('#chart svg'), tip = document.getElementById('tip');
+  function show(e, key) {
+    var t = TIPS[key]; if (!t) return;
+    tip.innerHTML = '<div class="tt"><span class="sw g' + t.gi + '"></span>' + t.t + '</div>' +
+      '<div class="row"><span>Bay Area, real</span><span>' + t.a + '</span></div>' +
+      '<div class="row"><span>U.S., real</span><span>' + t.b + '</span></div>' +
+      '<div class="row"><span>Difference</span><span><b>' + t.p + '</b></span></div>' +
+      '<div class="ts">' + t.s + '</div>';
+    tip.hidden = false;
+    var w = tip.offsetWidth, h = tip.offsetHeight, x = e.clientX + 14, y = e.clientY + 14;
+    if (x + w > innerWidth - 8) x = e.clientX - w - 14;
+    if (y + h > innerHeight - 8) y = e.clientY - h - 14;
+    tip.style.left = Math.max(8, x) + 'px'; tip.style.top = Math.max(8, y) + 'px';
+    svg.classList.add('dim');
+    svg.querySelectorAll('.rib').forEach(function (p) {
+      var k = p.getAttribute('data-tip');
+      var on = k === key || (key[0] === 'l' && k === 'g' + t.gi) || (key[0] === 'g' && TIPS[k].gi === t.gi);
+      p.classList.toggle('on', on);
+    });
+  }
+  function hide() {
+    tip.hidden = true; svg.classList.remove('dim');
+    svg.querySelectorAll('.rib.on').forEach(function (p) { p.classList.remove('on'); });
+  }
+  svg.addEventListener('pointermove', function (e) {
+    var k = e.target.getAttribute && e.target.getAttribute('data-tip');
+    if (k) show(e, k); else hide();
+  });
+  svg.addEventListener('pointerleave', hide);
+})();
+</script>

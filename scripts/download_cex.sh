@@ -18,7 +18,7 @@ OUT="$(cd "$(dirname "$0")/.." && pwd)/data/raw/cex_${YEAR}_2yr"
 mkdir -p "$OUT"
 BASE="https://www.bls.gov/cex/tables/geographic/mean"
 
-for f in "cu-msa-west-2-year-average-${YEAR}.xlsx" "cu-region-2-year-average-${YEAR}.xlsx"; do
+for f in "cu-msa-west-2-year-average-$((YEAR-1))-${YEAR}.xlsx" "cu-region-2-year-average-$((YEAR-1))-${YEAR}.xlsx"; do
   echo "-> $f"
   curl -fL --retry 4 --retry-delay 2 -A "$BLS_USER_AGENT" -o "$OUT/$f" "$BASE/$f"
   # A blocked request comes back as an HTML "Access Denied" page, not a workbook.

@@ -3,10 +3,11 @@
 in real (price-parity-adjusted) dollars, with each leaf compared to the U.S. average.
 
 Inputs (under data/raw/, see CLAUDE.md):
-  cex_<YEAR>_2yr/cu-msa-west-2-year-average-<YEAR>.xlsx   scripts/download_cex.sh
-  cex_<YEAR>_2yr/cu-region-2-year-average-<YEAR>.xlsx     scripts/download_cex.sh
-  bea_marpp/MARPP_MSA_2008_<YEAR>.csv                     BEA key-free bulk zip
-                                                          https://apps.bea.gov/regional/zip/MARPP.zip
+  cex_<YEAR>_2yr/cu-msa-west-2-year-average-<YEAR-1>-<YEAR>.xlsx   scripts/download_cex.sh
+  cex_<YEAR>_2yr/cu-region-2-year-average-<YEAR-1>-<YEAR>.xlsx     scripts/download_cex.sh
+  bea_marpp/MARPP_MSA_2008_<YEAR>.csv      https://apps.bea.gov/regional/zip/MARPP.zip (key-free)
+  bea_sainc/SAINC50__ALL_AREAS_*.csv       https://apps.bea.gov/regional/zip/SAINC.zip (key-free)
+  irs_soi/<yy>incyallagi.csv               https://www.irs.gov/pub/irs-soi/<yy>incyallagi.csv
 Outputs:
   analysis/income_sankey.json   the computed table
   analysis/income_sankey.html   self-contained page (static SVG + hover tooltips)
@@ -15,6 +16,13 @@ Method: nominal CEX dollars per consumer unit are divided by the BEA regional
 price parity (RPP) for the matching price category (goods / housing / utilities /
 other services; all-items for taxes, saving and giving). U.S. figures are
 deflated by the U.S. RPPs (~100) the same way.
+
+Taxes: BLS stopped publishing CEX tax estimates with the 2024 tables, so
+  federal tax     = CEX income x (IRS SOI total tax liability / AGI) for the
+                    metro's five counties, or for the U.S.
+  state and local = federal tax x (BEA state+local personal current taxes /
+                    federal personal current taxes) for California, or the U.S.
+Net saving is the residual: income - expenditures - taxes.
 
 Usage: python3 analysis/build_income_sankey.py [YEAR]     # default 2024
 """
@@ -32,24 +40,28 @@ CEX_DIR = ROOT / "data/raw" / f"cex_{YEAR}_2yr"
 RPP_CSV = ROOT / "data/raw/bea_marpp" / f"MARPP_MSA_2008_{YEAR}.csv"
 CEX_AREA = "San Francisco"  # CEX column header prefix (San Francisco-Oakland-Hayward)
 RPP_FIPS = "41860"          # BEA: San Francisco-Oakland-Fremont MSA (same 5 counties)
+SOI_CSV = ROOT / "data/raw/irs_soi" / f"{(YEAR - 1) % 100:02d}incyallagi.csv"  # first of the two CEX years
+SOI_COUNTIES = {"001", "013", "041", "075", "081"}  # Alameda, Contra Costa, Marin, SF, San Mateo
+SAINC50 = ROOT / "data/raw/bea_sainc"
 
 # (group, leaf label, [CEX item labels summed], RPP category)
 # RPP categories: A = all items, G = goods, H = housing, U = utilities, S = other services
 LEAVES = [
-    ("Housing", "Shelter (rent, mortgage interest, property tax)", ["Shelter"], "H"),
+    ("Housing", "Rent, mortgage interest, property tax", ["Shelter"], "H"),
     ("Housing", "Utilities, fuels, phone & internet", ["Utilities, fuels, and public services"], "U"),
     ("Housing", "Household services (childcare, cleaning…)", ["Household operations"], "S"),
     ("Housing", "Furnishings & household supplies",
      ["Housekeeping supplies", "Household furnishings and equipment"], "G"),
-    ("Taxes", "Personal taxes (federal, state, local)", ["__taxes__"], "A"),
-    ("Saving", "Retirement & Social Security contributions", ["Pensions and Social Security"], "A"),
+    ("Taxes", "Federal income & self-employment tax", ["__fedtax__"], "A"),
+    ("Taxes", "State & local income tax, vehicle fees", ["__statetax__"], "A"),
+    ("Saving", "Retirement & Social Security contributions", ["Retirement, pensions, and Social Security"], "A"),
     ("Saving", "Life & other personal insurance", ["Life and other personal insurance"], "A"),
     ("Saving", "Everything left over (net saving)", ["__residual__"], "A"),
     ("Food", "Groceries", ["Food at home"], "G"),
     ("Food", "Restaurants & takeout", ["Food away from home"], "S"),
     ("Food", "Alcohol", ["Alcoholic beverages"], "G"),
     ("Transportation", "Vehicle purchases", ["Vehicle purchases (net outlay)"], "G"),
-    ("Transportation", "Gasoline & fuel", ["Gasoline, other fuels, and motor oil"], "G"),
+    ("Transportation", "Gasoline & fuel", ["Gasoline and other fuels"], "G"),
     ("Transportation", "Car insurance, repairs, finance", ["Other vehicle expenses"], "S"),
     ("Transportation", "Transit, flights, rideshare", ["Public and other transportation"], "S"),
     ("Healthcare", "Healthcare (insurance, care, drugs)", ["Healthcare"], "S"),
@@ -105,8 +117,8 @@ def read_cex_column(path, col_prefix):
 
 
 def load_cex():
-    ba = read_cex_column(CEX_DIR / f"cu-msa-west-2-year-average-{YEAR}.xlsx", CEX_AREA)
-    us = read_cex_column(CEX_DIR / f"cu-region-2-year-average-{YEAR}.xlsx", "All consumer units")
+    ba = read_cex_column(CEX_DIR / f"cu-msa-west-2-year-average-{YEAR - 1}-{YEAR}.xlsx", CEX_AREA)
+    us = read_cex_column(CEX_DIR / f"cu-region-2-year-average-{YEAR - 1}-{YEAR}.xlsx", "All consumer units")
     return ba, us
 
 
@@ -131,13 +143,48 @@ def load_rpp():
     return out
 
 
-def compute(ba, us, rpp):
+def load_tax_rates():
+    """Effective federal rate (IRS SOI) and state+local-to-federal ratio (BEA SAINC50)."""
+    agg = {"ba": [0.0, 0.0], "us": [0.0, 0.0]}
+    with open(SOI_CSV, encoding="latin-1") as f:
+        for r in csv.DictReader(f):
+            keys = []
+            if r["COUNTYFIPS"] == "000":
+                keys.append("us")  # state-total rows sum to the U.S.
+            elif r["STATEFIPS"] == "06" and r["COUNTYFIPS"] in SOI_COUNTIES:
+                keys.append("ba")
+            for k in keys:
+                agg[k][0] += float(r["A10300"])  # total tax liability
+                agg[k][1] += float(r["A00100"])  # adjusted gross income
+    fed = {k: t / a for k, (t, a) in agg.items()}
+
+    path = sorted(SAINC50.glob("SAINC50__ALL_AREAS_*.csv"))[-1]
+    lines = {"70": "fed", "120": "state", "180": "local"}
+    tot = {"ba": {}, "us": {}}
+    with open(path, encoding="latin-1") as f:
+        rd = csv.reader(f)
+        head = next(rd)
+        yi = [head.index(str(YEAR - 1)), head.index(str(YEAR))]
+        for r in rd:
+            if len(r) < len(head):
+                continue
+            who = {"00000": "us", "06000": "ba"}.get(r[0].strip(' "'))  # California stands in for the metro
+            name = lines.get(r[head.index("LineCode")].strip())
+            if who and name:
+                tot[who][name] = sum(float(r[i]) for i in yi)
+    sl = {k: (v["state"] + v["local"]) / v["fed"] for k, v in tot.items()}
+    return dict(fed=fed, state_local_per_fed=sl)
+
+
+def compute(ba, us, rpp, tax):
+    for who, d in (("ba", ba), ("us", us)):
+        d["__fedtax__"] = d["income before taxes"] * tax["fed"][who]
+        d["__statetax__"] = d["__fedtax__"] * tax["state_local_per_fed"][who]
+        d["__residual__"] = (d["income before taxes"] - d["average annual expenditures"]
+                             - d["__fedtax__"] - d["__statetax__"])
+
     def get(d, item):
-        if item == "__taxes__":
-            return d["income before taxes"] - d["income after taxes"]
-        if item == "__residual__":
-            return d["income after taxes"] - d["average annual expenditures"]
-        return d[norm(item)]
+        return d[item] if item.startswith("__") else d[norm(item)]
 
     leaves = []
     for group, label, items, cat in LEAVES:
@@ -158,7 +205,7 @@ def compute(ba, us, rpp):
         rb, ru = sum(l["real_ba"] for l in ls), sum(l["real_us"] for l in ls)
         groups.append(dict(group=g, real_ba=rb, real_us=ru, nominal_ba=sum(l["nominal_ba"] for l in ls),
                            pct=(rb / ru - 1) * 100))
-    meta = dict(year=YEAR, rpp=rpp, totals=tot,
+    meta = dict(year=YEAR, rpp=rpp, tax=tax, totals=tot,
                 real_income_pct=(tot["real_ba"] / tot["real_us"] - 1) * 100,
                 nominal_income_pct=(tot["nominal_ba"] / tot["nominal_us"] - 1) * 100,
                 cu_size_ba=ba.get("people"), cu_size_us=us.get("people"))
@@ -184,7 +231,7 @@ def ribbon(x0, y0a, y0b, x1, y1a, y1b):
 def render_svg(data):
     leaves, groups, tot = data["leaves"], data["groups"], data["meta"]["totals"]
     W, NODE, PAD_T = 1000, 14, 30
-    X0, X1, X2 = 96, 356, 600           # left edges of the three node columns
+    X0, X1, X2 = 96, 340, 570           # left edges of the three node columns
     BAR = 600                           # px height of the income bar
     k = BAR / tot["real_ba"]            # px per real dollar
     G_GAP, L_GAP, L_MIN, GG_GAP = 16, 5, 19, 14  # group gap; leaf gap; min leaf row; gap between leaf groups
@@ -312,6 +359,9 @@ def render_page(data):
         "{{RPP_ALL}}": f'{m["rpp"]["ba"]["A"]:.0f}', "{{RPP_H}}": f'{m["rpp"]["ba"]["H"]:.0f}',
         "{{RPP_U}}": f'{m["rpp"]["ba"]["U"]:.0f}', "{{RPP_G}}": f'{m["rpp"]["ba"]["G"]:.0f}',
         "{{RPP_S}}": f'{m["rpp"]["ba"]["S"]:.0f}',
+        "{{SOI_YEAR}}": str(y0),
+        "{{FED_BA}}": f'{m["tax"]["fed"]["ba"] * 100:.1f}%', "{{FED_US}}": f'{m["tax"]["fed"]["us"] * 100:.1f}%',
+        "{{SL_BA}}": f'{m["tax"]["state_local_per_fed"]["ba"]:.2f}', "{{SL_US}}": f'{m["tax"]["state_local_per_fed"]["us"]:.2f}',
     }
     for a, b in rep.items():
         tpl = tpl.replace(a, b)
@@ -320,7 +370,7 @@ def render_page(data):
 
 def main():
     ba, us = load_cex()
-    data = compute(ba, us, load_rpp())
+    data = compute(ba, us, load_rpp(), load_tax_rates())
     out = Path(__file__).parent
     page = render_page(data)  # render adds layout keys to leaves; dump clean numbers only
     keep = ("group", "label", "cat", "rpp", "nominal_ba", "nominal_us", "real_ba", "real_us", "pct")
