@@ -1,0 +1,174 @@
+<title>Bay Area Income Flows</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap">
+<style>
+/* Layout: one reading column — headline claim, three figures, the flow diagram, then the full table and method. */
+:root {
+  --plane: #f9f9f9; --surface: #ffffff; --ink: #191919; --ink2: #666666;
+  --hair: #e7e7e7; --axis: #c2c2c2; --ring: rgba(11,11,11,0.10);
+  --s0: #257de0; --s1: #f47230; --s2: #00b894; --s3: #f2a600; --s4: #ee7fac; --s5: #008a17; --s6: #6a4ce2;
+  --inc: #4a4f57; --rib: 0.30;
+  --display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --plane: #0b0b0b; --surface: #191919; --ink: #efefef; --ink2: #9c9c9c;
+  --hair: #303030; --axis: #474747; --ring: rgba(255,255,255,0.10);
+  --s0: #338ced; --s1: #e76624; --s2: #00a888; --s3: #d28e05; --s4: #e24d8b; --s5: #0aac23; --s6: #9887ef;
+  --inc: #a9afb8; --rib: 0.38; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --plane: #0b0b0b; --surface: #191919; --ink: #efefef; --ink2: #9c9c9c;
+  --hair: #303030; --axis: #474747; --ring: rgba(255,255,255,0.10);
+  --s0: #338ced; --s1: #e76624; --s2: #00a888; --s3: #d28e05; --s4: #e24d8b; --s5: #0aac23; --s6: #9887ef;
+  --inc: #a9afb8; --rib: 0.38; color-scheme: dark }
+
+body { background: var(--plane); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 64px; }
+main { max-width: 1040px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 4vw, 38px); line-height: 1.12;
+  letter-spacing: -0.02em; margin: 0; text-wrap: balance; max-width: 22ch; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 19px; margin: 0 0 10px; }
+.eyebrow { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink2); margin: 0 0 10px; }
+.lede { max-width: 65ch; margin: 12px 0 0; color: var(--ink2); }
+.lede b { color: var(--ink); font-weight: 600; }
+
+.figs { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0; border-block: 1px solid var(--hair); }
+.fig { padding: 16px 20px 16px 0; }
+.fig + .fig { padding-left: 20px; border-left: 1px solid var(--hair); }
+.fig .k { font-size: 12.5px; color: var(--ink2); }
+.fig .v { font-family: var(--display); font-weight: 600; font-size: 28px; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.fig .d { font-size: 13px; color: var(--ink2); font-variant-numeric: tabular-nums; }
+@media (max-width: 660px) { .fig, .fig + .fig { padding: 12px 0; border-left: 0; } .fig + .fig { border-top: 1px solid var(--hair); } }
+
+.card { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 20px; min-width: 0; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--ink2); margin-bottom: 8px; }
+.lg { display: inline-flex; align-items: center; gap: 6px; }
+.sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: baseline; }
+.lg .sw { margin: 0; }
+.scroll { overflow-x: auto; position: relative; }
+.scroll svg { display: block; min-width: 860px; width: 100%; height: auto; }
+.note { font-size: 12.5px; color: var(--ink2); margin: 10px 0 0; max-width: 80ch; }
+
+svg text { font-family: var(--body); fill: var(--ink); font-size: 13px; }
+svg .colhead { font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; fill: var(--ink2); }
+svg .big { font-family: var(--display); font-weight: 600; font-size: 19px; font-variant-numeric: tabular-nums; }
+svg .sub { font-size: 12px; fill: var(--ink2); font-variant-numeric: tabular-nums; }
+svg .sub.strong { fill: var(--ink); font-weight: 600; }
+svg .glabel { font-weight: 600; font-size: 13px; }
+svg .lval { fill: var(--ink2); font-variant-numeric: tabular-nums; }
+svg .lpct { font-weight: 600; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+svg .lpct.neg { font-weight: 500; fill: var(--ink2); }
+svg .node.inc { fill: var(--inc); }
+svg .hit { fill: transparent; cursor: default; }
+svg .rib { fill-opacity: var(--rib); transition: fill-opacity .12s; }
+svg.dim .rib:not(.on) { fill-opacity: 0.10; }
+svg .rib.on { fill-opacity: 0.62; }
+.g0 { fill: var(--s0); background: var(--s0); } .g1 { fill: var(--s1); background: var(--s1); }
+.g2 { fill: var(--s2); background: var(--s2); } .g3 { fill: var(--s3); background: var(--s3); }
+.g4 { fill: var(--s4); background: var(--s4); } .g5 { fill: var(--s5); background: var(--s5); }
+.g6 { fill: var(--s6); background: var(--s6); }
+@media (prefers-reduced-motion: reduce) { svg .rib { transition: none; } }
+
+#tip { position: fixed; z-index: 20; pointer-events: none; background: var(--surface); color: var(--ink);
+  border: 1px solid var(--ring); border-radius: 8px; box-shadow: 0 6px 24px rgba(0,0,0,.16); padding: 10px 12px;
+  font-size: 12.5px; max-width: 280px; line-height: 1.45; }
+#tip .tt { font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 2px; }
+#tip .row { display: flex; justify-content: space-between; gap: 18px; font-variant-numeric: tabular-nums; }
+#tip .row span:first-child { color: var(--ink2); }
+#tip .ts { color: var(--ink2); margin-top: 4px; }
+
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+th { text-align: left; font-weight: 500; color: var(--ink2); font-size: 12px; vertical-align: bottom; padding: 6px 10px; border-bottom: 1px solid var(--axis); }
+td { padding: 6px 10px; border-bottom: 1px solid var(--hair); }
+.n { text-align: right; white-space: nowrap; }
+td.ind { padding-left: 28px; }
+tr.grow td { font-weight: 600; }
+tr.tot td { border-top: 1px solid var(--axis); border-bottom: 0; }
+.dim { color: var(--ink2); font-size: 12px; }
+.method { max-width: 70ch; }
+.method p, .method li { color: var(--ink2); margin: 0 0 10px; }
+.method ul { padding-left: 18px; margin: 0; }
+.method b { color: var(--ink); font-weight: 600; }
+a { color: inherit; }
+</style>
+
+<main>
+  <header>
+    <p class="eyebrow">San Francisco–Oakland metro · {{YEARS}} average · per household</p>
+    <h1>Where a Bay Area income goes, in real dollars</h1>
+    <p class="lede">The average Bay Area household takes in <b>{{NOM_BA}}</b> a year, {{NOM_PCT}} against the U.S. average.
+      Local prices run {{RPP_ALL}} against a national 100, and housing runs {{RPP_H}}. Dividing each use of income by its
+      own local price level leaves <b>{{REAL_BA}}</b> of national-price purchasing power, <b>{{REAL_PCT}}</b> against the U.S.
+      The percentage beside each branch is how much more of that thing, in real terms, a Bay Area household gets than the average American one.</p>
+  </header>
+
+  <section class="figs" aria-label="Headline figures">
+    <div class="fig"><div class="k">Nominal income</div><div class="v">{{NOM_BA}}</div><div class="d">U.S. {{NOM_US}} · {{NOM_PCT}}</div></div>
+    <div class="fig"><div class="k">Real income, at national prices</div><div class="v">{{REAL_BA}}</div><div class="d">U.S. {{REAL_US}} · {{REAL_PCT}}</div></div>
+    <div class="fig"><div class="k">Bay Area price level, U.S. = 100</div><div class="v">{{RPP_ALL}}</div><div class="d">housing {{RPP_H}} · utilities {{RPP_U}} · goods {{RPP_G}} · other services {{RPP_S}}</div></div>
+  </section>
+
+  <section class="card">
+    <div class="legend" aria-hidden="true">{{LEGEND}}</div>
+    <div class="scroll" id="chart">
+{{SVG}}
+    </div>
+    <p class="note">Band widths are real dollars per household per year: nominal Bay Area dollars divided by the local price level for that kind of spending. Small branches are drawn at true width but spaced apart so the labels stay readable.</p>
+  </section>
+
+  <section class="card">
+    <h2>The numbers behind the diagram</h2>
+    <div class="tablewrap">
+{{TABLE}}
+    </div>
+  </section>
+
+  <section class="method">
+    <h2>How this was built</h2>
+    <ul>
+      <li><b>Income and its uses</b> come from the BLS Consumer Expenditure Survey, {{YEARS}} two-year average, for the San Francisco–Oakland–Hayward metro (San Francisco, San Mateo, Alameda, Contra Costa and Marin counties; San Jose is a separate metro the survey does not publish) and for all U.S. consumer units. A consumer unit is roughly a household.</li>
+      <li><b>Real dollars</b> divide each line by the matching BEA regional price parity for the San Francisco–Oakland–Fremont metro, averaged over the same two years: housing for shelter, utilities for utilities, goods for groceries, vehicles, fuel, clothing and furnishings, other services for the rest of consumption, and all items for taxes, saving and giving. U.S. lines are divided by the U.S. parities, which sit within about 1.5 points of 100.</li>
+      <li><b>Taxes</b> are income before taxes minus income after taxes. <b>Net saving</b> is what remains of after-tax income once every expenditure line is paid, so it includes mortgage principal and absorbs the survey's reporting error on both income and spending. Treat it as the least precise branch.</li>
+      <li>Shelter for owners counts mortgage interest, property tax, insurance and upkeep, not the purchase price of the home. Deflating it by the rent-based housing parity is the standard approximation.</li>
+      <li>Real income here is the sum of the deflated branches, so it differs slightly from nominal income divided by the all-items parity.</li>
+    </ul>
+  </section>
+</main>
+<div id="tip" hidden></div>
+
+<script>
+(function () {
+  var TIPS = {{TIPS}};
+  var svg = document.querySelector('#chart svg'), tip = document.getElementById('tip');
+  function show(e, key) {
+    var t = TIPS[key]; if (!t) return;
+    tip.innerHTML = '<div class="tt"><span class="sw g' + t.gi + '"></span>' + t.t + '</div>' +
+      '<div class="row"><span>Bay Area, real</span><span>' + t.a + '</span></div>' +
+      '<div class="row"><span>U.S., real</span><span>' + t.b + '</span></div>' +
+      '<div class="row"><span>Difference</span><span><b>' + t.p + '</b></span></div>' +
+      '<div class="ts">' + t.s + '</div>';
+    tip.hidden = false;
+    var w = tip.offsetWidth, h = tip.offsetHeight, x = e.clientX + 14, y = e.clientY + 14;
+    if (x + w > innerWidth - 8) x = e.clientX - w - 14;
+    if (y + h > innerHeight - 8) y = e.clientY - h - 14;
+    tip.style.left = Math.max(8, x) + 'px'; tip.style.top = Math.max(8, y) + 'px';
+    svg.classList.add('dim');
+    svg.querySelectorAll('.rib').forEach(function (p) {
+      var k = p.getAttribute('data-tip');
+      var on = k === key || (key[0] === 'l' && k === 'g' + t.gi) || (key[0] === 'g' && TIPS[k].gi === t.gi);
+      p.classList.toggle('on', on);
+    });
+  }
+  function hide() {
+    tip.hidden = true; svg.classList.remove('dim');
+    svg.querySelectorAll('.rib.on').forEach(function (p) { p.classList.remove('on'); });
+  }
+  svg.addEventListener('pointermove', function (e) {
+    var k = e.target.getAttribute && e.target.getAttribute('data-tip');
+    if (k) show(e, k); else hide();
+  });
+  svg.addEventListener('pointerleave', hide);
+})();
+</script>
